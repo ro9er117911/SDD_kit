@@ -25,7 +25,7 @@ Then:
 
 Story 2: 自動生成 SDD 並提交 GitHub
 Given: Bot 收到有效的 BRD 內容
-When: GPT-4 完成 BRD → SDD 轉換
+When: GPT-5 nano 完成 BRD 分析，Claude CLI + SpecKit 完成 SDD 生成
 Then:
   - 在隔離的 Docker 容器中執行 speckit.sh
   - 建立新分支 bot/spec-{timestamp}

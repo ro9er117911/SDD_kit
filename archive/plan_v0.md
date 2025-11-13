@@ -5,7 +5,7 @@
 graph TB
   subgraph External[外部服務]
     SLACK[Slack API]
-    OPENAI[OpenAI GPT-4 API]
+    OPENAI[OpenAI GPT-5 nano API]
     GITHUB[GitHub API]
   end
 
@@ -51,7 +51,7 @@ graph TB
 |------|------|------|------|
 | **Bot 框架** | Bolt for JavaScript | 3.x | 官方推薦，社群活躍 |
 | **執行環境** | Node.js | 20 LTS | 穩定，套件豐富 |
-| **LLM** | OpenAI GPT-4 Turbo | gpt-4-turbo-preview | 性能與成本平衡 |
+| **LLM** | OpenAI GPT-5 nano | gpt-5-nano | 性能與成本平衡 |
 | **版本控管** | GitHub API | v3 | 整合完善 |
 | **容器化** | Docker | 24.x | 業界標準 |
 | **文件轉換** | Pandoc | 3.x | 支援多格式轉換 |

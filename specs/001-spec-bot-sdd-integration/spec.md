@@ -395,7 +395,7 @@ PR 被核准並合併至 main 分支後，GitHub Actions 自動觸發 CI 流程�
 
 ### 限制
 
-1. **檔案大小限制**：BRD 檔案大小不得超過 100 KB（受 GPT-4 Turbo 的 128K tokens context window 限制，100 KB 約對應 65K tokens，保留 buffer 給 SDD 輸出）
+1. **檔案大小限制**：BRD 檔案大小不得超過 100 KB（受 GPT-5 nano 的 context window 限制，100 KB 約對應 65K tokens，保留 buffer 給需求分析輸出）
 2. **並行處理限制**：系統同時處理的 BRD 請求數量上限為 5 個（受 Docker 資源與 GPT API rate limit 限制）。超過上限的請求進入 FIFO 佇列（佇列長度上限 10），佇列已滿時拒絕新請求
 3. **語言限制**：MVP 階段僅支援繁體中文 BRD 與 SDD（簡化 GPT prompt 設計與文件驗證邏輯，專注於核心功能。後續版本可擴充多語言支援）
 4. **圖表複雜度限制**：Mermaid 圖表節點數量建議不超過 50 個（避免渲染效能問題）

@@ -283,7 +283,7 @@ sequenceDiagram
 |------|----------|------|
 | Slack Bot | `slack-bolt` (Python) | Python Bolt 框架 |
 | GitHub API | `PyGithub` | Python GitHub 客戶端 |
-| GPT API | `openai` (Python SDK) | GPT-4 Turbo API |
+| GPT API | `openai` (Python SDK) | GPT-5 nano API（用於 BRD 分析） |
 | 執行環境 | Python 3.11 + pip | Python 虛擬環境 |
 
 ### 新架構 (正確 ✅)

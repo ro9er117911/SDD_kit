@@ -15,8 +15,8 @@
 - [ ] CHK003 - 是否定義了 BRD 內容編碼格式的需求？[Gap]
   - 規格未說明是否支援 UTF-8 以外的編碼，或特殊字元的處理規則
 
-- [ ] CHK004 - BRD 大小限制 10 MB 的理由是否基於技術約束？[Traceability, Spec §限制-1]
-  - 規格提到「受 Slack API 與 GPT token limit 限制」，但未說明 GPT-4 的實際 token 上限是多少
+- [ ] CHK004 - BRD 大小限制 100 KB 的理由是否基於技術約束？[Traceability, Spec §限制-1]
+  - 規格提到「受 Slack API 與 GPT token limit 限制」，但未說明 GPT-5 nano 的實際 token 上限是多少
 
 - [ ] CHK005 - 是否定義了 BRD 章節缺失時的錯誤訊息範本？[Completeness, Spec §FR-009]
   - 規格要求「提供具體錯誤訊息與 BRD 模板連結」，但未定義錯誤訊息的具體格式

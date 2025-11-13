@@ -26,43 +26,85 @@
    - 需擁有目標 repository 的 write 權限
    - 已建立 Fine-grained Personal Access Token
 
-3. **OpenAI Account**
-   - 需擁有 GPT-4 API 存取權限
+3. **Anthropic Account**
+   - 需擁有 Claude API 存取權限（用於 Claude CLI）
+   - 已取得 API key
+
+4. **OpenAI Account**
+   - 需擁有 GPT-5 nano API 存取權限（用於 BRD 分析）
    - 已取得 API key
 
 ---
 
 ## 第一步：環境準備
 
-### 1.1 安裝 Python 依賴
+### 1.1 安裝 Claude CLI
+
+```bash
+# macOS/Linux: 使用 pip 安裝
+pip install claude-cli
+
+# 或使用官方安裝腳本
+curl -fsSL https://raw.githubusercontent.com/anthropics/claude-cli/main/install.sh | sh
+
+# 驗證安裝
+claude --version
+
+# 設定 Claude API Key
+export ANTHROPIC_API_KEY=sk-ant-your-api-key-here
+claude config set api_key $ANTHROPIC_API_KEY
+
+# 測試連線
+claude "Hello, Claude!"
+```
+
+### 1.2 安裝 SpecKit
 
 ```bash
 # 複製 repository
 git clone https://github.com/your-org/spec-bot.git
 cd spec-bot
 
+# 安裝 SpecKit CLI（包含在專案中）
+# SpecKit 使用 Claude CLI 作為基礎，透過 .claude/commands/ 定義自定義指令
+
+# 驗證 SpecKit 指令可用
+ls -la .claude/commands/
+# 應該看到：speckit.*.md 檔案
+
+# 測試 SpecKit 指令
+claude /speckit.constitution
+```
+
+### 1.3 安裝 Python 依賴（用於 Bot 服務）
+
+```bash
 # 建立虛擬環境
 python3.11 -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 
-# 安裝依賴
+# 使用 uv 安裝依賴（更快速）
+pip install uv
+uv pip install -r requirements.txt
+
+# 或使用傳統 pip
 pip install -r requirements.txt
 
 # 驗證安裝
 python -c "import slack_bolt, github, openai; print('✅ Python 依賴安裝成功')"
 ```
 
-### 1.2 安裝 Node.js 工具
+### 1.4 安裝 Node.js 工具
 
 ```bash
-# 安裝 mermaid-cli
+# 安裝 mermaid-cli（用於圖表轉換）
 npm install -g @mermaid-js/mermaid-cli
 
 # 驗證安裝
 mmdc --version
 ```
 
-### 1.3 安裝 Docker
+### 1.5 安裝 Docker
 
 ```bash
 # macOS (使用 Homebrew)
@@ -137,12 +179,22 @@ channels:history    # 讀取頻道訊息歷史
 
 ---
 
-## 第四步：OpenAI API Key 設定
+## 第四步：API Keys 設定
+
+### 4.1 Claude API Key
+
+1. 前往 https://console.anthropic.com/settings/keys
+2. 點擊「Create Key」
+3. 填寫 Name: `Spec Bot Dev - Claude CLI`
+4. 複製 API key (格式：`sk-ant-...`)
+
+### 4.2 OpenAI API Key（GPT-5 nano）
 
 1. 前往 https://platform.openai.com/api-keys
 2. 點擊「Create new secret key」
-3. 填寫 Name: `Spec Bot Dev`
+3. 填寫 Name: `Spec Bot Dev - GPT-5 nano`
 4. 複製 API key (格式：`sk-...`)
+5. 確認帳號可存取 GPT-5 nano 模型
 
 ---
 
@@ -162,9 +214,13 @@ SLACK_SIGNING_SECRET=your-signing-secret-here
 GITHUB_TOKEN=ghp_your-github-token-here
 GITHUB_REPO=your-org/your-repo  # 格式：owner/repo-name
 
-# OpenAI 配置
+# Claude 配置（用於 Claude CLI + SpecKit）
+ANTHROPIC_API_KEY=sk-ant-your-claude-key-here
+CLAUDE_MODEL=claude-sonnet-4-5  # 或其他可用模型
+
+# OpenAI 配置（用於 BRD 分析）
 OPENAI_API_KEY=sk-your-openai-key-here
-OPENAI_MODEL=gpt-4-turbo-preview
+OPENAI_MODEL=gpt-5-nano
 
 # Docker 配置
 DOCKER_SANDBOX_IMAGE=spec-bot-sandbox:latest
@@ -199,12 +255,21 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# 安裝 Python 工具
+RUN pip install --no-cache-dir \
+    uv \
+    claude-cli \
+    python-dotenv
+
 # 建立非 root 使用者
 RUN useradd -m -u 1000 specbot
 
 # 切換使用者
 USER specbot
 WORKDIR /app
+
+# 複製 SpecKit 配置（.claude/ 目錄）
+# 注意：這將在容器啟動時從宿主機掛載
 
 # 預設指令
 CMD ["bash"]
@@ -215,6 +280,8 @@ docker build -f docker/sandbox-dockerfile -t spec-bot-sandbox:latest .
 
 # 驗證映像
 docker run --rm spec-bot-sandbox:latest mmdc --version
+docker run --rm spec-bot-sandbox:latest claude --version
+docker run --rm spec-bot-sandbox:latest uv --version
 ```
 
 ---
@@ -273,8 +340,16 @@ python src/main.py
    ✅ 已收到 BRD，開始處理
    預計 2-3 分鐘完成
    ```
-4. 等待處理完成，Bot 會回傳 GitHub PR 連結
-5. 前往 GitHub 查看自動建立的 PR
+4. Bot 執行流程：
+   - **階段 1**: GPT-5 nano 分析 BRD，生成 brd_analysis.json
+   - **階段 2**: 啟動 Docker 容器，執行 Claude CLI + SpecKit 指令
+   - **階段 3**: 提交 SDD 至 GitHub 並建立 PR
+5. 等待處理完成，Bot 會回傳 GitHub PR 連結
+6. 前往 GitHub 查看自動建立的 PR，應包含：
+   - `specs/001-{功能名稱}/spec.md`
+   - `specs/001-{功能名稱}/plan.md`
+   - `specs/001-{功能名稱}/tasks.md`
+   - `specs/001-{功能名稱}/diagrams/*.mermaid`
 
 ---
 
@@ -364,17 +439,31 @@ echo $SLACK_APP_TOKEN  # 應為 xapp-...
 # Slack 頻道 → 整合 → 新增應用程式 → 選擇 Spec Bot
 ```
 
-**問題 2: GPT API 錯誤**
+**問題 2: API 錯誤**
+
 ```bash
-# 檢查 API key 是否有效
+# 檢查 Claude API key 是否有效
+curl https://api.anthropic.com/v1/messages \
+  -H "x-api-key: $ANTHROPIC_API_KEY" \
+  -H "anthropic-version: 2023-06-01" \
+  -H "content-type: application/json" \
+  -d '{"model":"claude-sonnet-4-5","max_tokens":100,"messages":[{"role":"user","content":"Hello"}]}'
+
+# 檢查 OpenAI API key 是否有效（GPT-5 nano）
 curl https://api.openai.com/v1/models \
   -H "Authorization: Bearer $OPENAI_API_KEY" | jq .
 
+# 檢查 GPT-5 nano 是否可用
+curl https://api.openai.com/v1/models/gpt-5-nano \
+  -H "Authorization: Bearer $OPENAI_API_KEY" | jq .
+
 # 檢查 rate limit
-# 前往 https://platform.openai.com/account/rate-limits
+# Claude: https://console.anthropic.com/settings/limits
+# OpenAI: https://platform.openai.com/account/rate-limits
 
 # 檢查帳單餘額
-# 前往 https://platform.openai.com/account/billing
+# Claude: https://console.anthropic.com/settings/billing
+# OpenAI: https://platform.openai.com/account/billing
 ```
 
 **問題 3: GitHub PR 建立失敗**

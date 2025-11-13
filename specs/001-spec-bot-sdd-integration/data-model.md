@@ -104,7 +104,7 @@ erDiagram
         boolean syntax_valid "經過 mermaid-cli 驗證"
         integer node_count
         datetime generated_at
-        string generated_by "gpt-4"
+        string generated_by "claude-cli-via-gpt-5-nano"
     }
 
     GITHUB_RELEASE {
@@ -667,33 +667,34 @@ flowchart TD
     B -->|新增| C["Requirement Request<br/>status: pending"]
     C -->|狀態更新| D["Requirement Request<br/>status: processing"]
 
-    D -->|呼叫 API| E["GPT-4 API<br/>BRD → SDD"]
-    E -->|生成結果| F["SDD Document<br/>章節 + 圖表"]
+    D -->|呼叫 API| E["GPT-5 nano<br/>BRD 分析"]
+    E -->|生成結果| F["brd_analysis.json<br/>需求摘要 + Prompt"]
 
-    F -->|執行容器| G["Docker Container<br/>speckit.sh"]
-    G -->|生成檔案結構| H["GitHub Commit"]
+    F -->|執行容器| G["Docker Container<br/>Claude CLI + SpecKit"]
+    G -->|生成 SDD| H["SDD Document<br/>章節 + 圖表"]
+    H -->|提交| I["GitHub Commit"]
 
-    H -->|提交分支| I["GitHub Branch<br/>bot/spec-timestamp"]
-    I -->|建立 PR| J["GitHub PR<br/>狀態: open"]
+    I -->|建立分支| J["GitHub Branch<br/>bot/spec-timestamp"]
+    J -->|建立 PR| K["GitHub PR<br/>狀態: open"]
 
-    J -->|Slack 通知| K["Slack 訊息<br/>PR 連結"]
-    J -->|人工審核| L["SA/Architect<br/>審核與留言"]
+    K -->|Slack 通知| L["Slack 訊息<br/>PR 連結"]
+    K -->|人工審核| M["SA/Architect<br/>審核與留言"]
 
-    L -->|批准| M["GitHub PR<br/>狀態: approved"]
-    M -->|合併| N["GitHub Branch<br/>狀態: merged"]
+    M -->|批准| N["GitHub PR<br/>狀態: approved"]
+    N -->|合併| O["GitHub Branch<br/>狀態: merged"]
 
-    N -->|觸發 CI| O["GitHub Actions<br/>post-merge"]
-    O -->|轉換| P["PNG/PDF/DOCX"]
-    P -->|發布| Q["GitHub Release"]
+    O -->|觸發 CI| P["GitHub Actions<br/>post-merge"]
+    P -->|轉換| Q["PNG/PDF/DOCX"]
+    Q -->|發布| R["GitHub Release"]
 
-    Q -->|Slack 通知| R["Slack 訊息<br/>Release 連結"]
+    R -->|Slack 通知| S["Slack 訊息<br/>Release 連結"]
 
-    E -->|錯誤| S["Error Log<br/>記錄"]
-    G -->|錯誤| S
-    H -->|錯誤| S
+    E -->|錯誤| T["Error Log<br/>記錄"]
+    G -->|錯誤| T
+    I -->|錯誤| T
 
-    S -->|通知| T["Slack 錯誤<br/>通知"]
-    T -->|重試| E
+    T -->|通知| U["Slack 錯誤<br/>通知"]
+    U -->|重試| E
 
     classDef slack fill:#36c5f0
     classDef gpt fill:#74aa9c
@@ -701,11 +702,11 @@ flowchart TD
     classDef docker fill:#2496ed
     classDef error fill:#e74c3c
 
-    class A,K,R,T slack
+    class A,L,S,U slack
     class E gpt
-    class I,J,N,Q,O git
+    class J,K,O,R,P git
     class G docker
-    class S,T error
+    class T,U error
 ```
 
 ### 完整時序圖
@@ -715,8 +716,9 @@ sequenceDiagram
     participant PM as 產品經理
     participant Slack as Slack<br/>Event API
     participant Bot as Spec Bot<br/>背景服務
-    participant GPT as GPT-4<br/>API
+    participant GPT as GPT-5 nano<br/>API
     participant Docker as Docker<br/>容器
+    participant Claude as Claude CLI<br/>+ SpecKit
     participant GitHub as GitHub<br/>API
     participant SlackNotify as Slack<br/>通知
 
@@ -726,24 +728,26 @@ sequenceDiagram
     Bot->>Bot: 3. 驗證 BRD（格式、大小）
     Bot->>Slack: 4. 回應確認訊息 (⏳ 處理中)
 
-    Bot->>GPT: 5. 呼叫 GPT-4 (BRD → SDD)
-    GPT->>Bot: 6. 返回 SDD 內容
+    Bot->>GPT: 5. 呼叫 GPT-5 nano<br/>分析 BRD
+    GPT->>Bot: 6. 返回 brd_analysis.json<br/>(需求摘要 + Prompt)
 
-    Bot->>Docker: 7. 啟動容器<br/>執行 speckit.sh
-    Docker->>Docker: 8. 生成 SDD 檔案結構
-    Docker->>Bot: 9. 返回結果
+    Bot->>Docker: 7. 啟動容器並掛載<br/>brd_analysis.json
+    Docker->>Claude: 8. 執行 Claude CLI<br/>+ SpecKit 指令
+    Claude->>Claude: 9. 生成 SDD 檔案結構<br/>(spec, plan, tasks)
+    Claude->>Docker: 10. 返回 SDD 產出
+    Docker->>Bot: 11. 返回結果
 
-    Bot->>GitHub: 10. 建立分支<br/>bot/spec-timestamp
-    Bot->>GitHub: 11. 提交檔案與 commit
-    Bot->>GitHub: 12. 建立 PR
+    Bot->>GitHub: 12. 建立分支<br/>bot/spec-timestamp
+    Bot->>GitHub: 13. 提交檔案與 commit
+    Bot->>GitHub: 14. 建立 PR
 
-    GitHub->>Bot: 13. PR 建立成功
-    Bot->>Slack: 14. 回應 PR 連結
-    Bot->>SlackNotify: 15. 通知 SA/Architect
+    GitHub->>Bot: 15. PR 建立成功
+    Bot->>Slack: 16. 回應 PR 連結
+    Bot->>SlackNotify: 17. 通知 SA/Architect
 
-    SlackNotify->>PM: 16. GitHub PR 通知
+    SlackNotify->>PM: 18. GitHub PR 通知
 
-    PM->>GitHub: 17. 等待審核...
+    PM->>GitHub: 19. 等待審核...
 
     note over PM,SlackNotify
         ↓ 待審核者動作（獨立於 Bot）
