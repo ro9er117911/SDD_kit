@@ -199,3 +199,9 @@ refactor: 重構描述
 3. **無狀態設計**：Bot 不得在本地持久化狀態，所有狀態存於 GitHub
 4. **Docker 隔離**：所有自動化操作在容器中執行，任務完成後銷毀
 5. **憲法至上**：憲法效力高於所有其他實踐，違反需明確記錄並獲批准
+
+## Active Technologies
+- Python 3.11 (001-spec-bot-sdd-integration)
+
+## Recent Changes
+- 001-spec-bot-sdd-integration: Added Python 3.11
