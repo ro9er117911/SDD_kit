@@ -770,7 +770,7 @@ jobs:
 
 | 風險 | 嚴重性 | 可能性 | 緩解措施 |
 |------|--------|--------|----------|
-| **GPT-5 nano API 不可用** | 高 | 低 | 備用方案：使用 GPT-4 Turbo |
+| **GPT-5 nano API 不可用** | 高 | 低 | 備用方案：使用其他 GPT 模型或 Claude 直接分析 |
 | **Claude CLI 安裝失敗** | 高 | 中 | 預先測試 Dockerfile，準備替代方案（直接呼叫 Anthropic API）|
 | **SpecKit CLI 格式不符** | 中 | 中 | 研究 SpecKit 文件，撰寫適配層 |
 | **Docker 容器逾時** | 中 | 中 | 實作強制終止機制，提供使用者重試選項 |
