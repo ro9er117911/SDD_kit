@@ -241,30 +241,102 @@ Checklists are "unit tests for requirements" - they validate **requirement quali
 ### Read-Only Analysis
 The `/speckit.analyze` command is **strictly read-only**. It identifies issues but never auto-fixes. Remediation requires explicit user approval.
 
-## Extension Plans (draft/extension.md)
+## Bank Profile Extension (Enterprise SDD Workflow)
 
-Planned enhancements for banking/enterprise workflows:
+The system now supports **banking/enterprise workflows** with additional pre-specification templates:
 
-**New Template Layer** (Bank SDD Profile):
+### Directory Structure
+
+**Bank Profile** documents are stored at **project level** (not feature level):
+
 ```
-project-xyz/
-├── 00_meta.md              # Project metadata, stakeholders, priority
-├── 10_business.md          # Business goals, KPIs, customer journey
-├── 20_process.md           # As-Is / To-Be flows, exception scenarios
-├── 30_risk_control.md      # Risks, control points, RACI
-├── 40_infosec.md           # Security requirements, permission matrix
-├── 50_compliance.md        # Regulatory compliance (GDPR, PDPA, etc.)
-├── 60_audit.md             # Auditability requirements (logs, retention)
-├── 70_nfr.md               # Non-functional requirements (SLA, RTO/RPO)
-├── spec.md                 # Technical specification (SDD)
-├── plan.md                 # System design (SDD)
-└── tasks.md                # Task breakdown (SDD)
+.
+├── bank-profile/           # Project-level Bank SDD Profile
+│   ├── 00_meta.md          # Project metadata, stakeholders, priority
+│   ├── 10_business.md      # Business goals, KPIs, user stories
+│   ├── 20_process.md       # As-Is / To-Be flows, exception scenarios
+│   ├── 30_risk_control.md  # Risks, control measures, RACI matrix
+│   ├── 40_infosec.md       # Security requirements, permission matrix
+│   ├── 50_compliance.md    # Regulatory compliance (GDPR, PDPA, etc.)
+│   ├── 60_audit.md         # Auditability requirements (logs, retention)
+│   └── 70_nfr.md           # Non-functional requirements (SLA, RTO/RPO)
+├── specs/
+│   └── ###-feature-name/   # Feature-specific SDD (generated from Bank Profile)
+│       ├── spec.md         # Technical specification
+│       ├── plan.md         # System design
+│       └── tasks.md        # Task breakdown
 ```
 
-**Workflow Addition**:
-- Gate mechanism: All 00-70 templates must reach "Definition of Ready" before generating spec/plan/tasks
-- Cross-department alignment: Business, InfoSec, Compliance, Audit each own specific templates
-- Automatic SDD generation: `profile_to_sdd` command extracts requirements from 00-70 templates
+### Bank Profile Workflow
+
+**Complete enterprise workflow** (Bank Profile → Project Summary → Constitution → Feature SDD):
+
+```bash
+# Phase 1: Project Context (00-20) - Business Requirements
+/speckit.meta              # → bank-profile/00_meta.md
+/speckit.business          # → bank-profile/10_business.md
+/speckit.process           # → bank-profile/20_process.md
+
+# Phase 2: Risk & Security (30-40) - Control Requirements
+/speckit.risk              # → bank-profile/30_risk_control.md
+/speckit.infosec           # → bank-profile/40_infosec.md
+
+# Phase 3: Compliance & Audit (50-60) - Regulatory Requirements
+/speckit.compliance        # → bank-profile/50_compliance.md
+/speckit.audit             # → bank-profile/60_audit.md
+
+# Phase 4: Non-Functional Requirements (70)
+/speckit.nfr               # → bank-profile/70_nfr.md
+
+# Phase 5: Review & Constitution (審核與憲法建立) - 關鍵整合步驟
+/speckit.review            # 審核 00-70 完整性與一致性
+                          # → 生成 PROJECT_SUMMARY.md (專案總結)
+                          # → 提煉專案特定約束
+
+/speckit.constitution      # 建立專案憲法
+                          # → 讀取 PROJECT_SUMMARY.md
+                          # → 更新 .specify/memory/constitution.md
+                          # → 整合通用原則 + 專案特定約束
+
+# Phase 6: Feature Development Cycle (功能開發循環,可重複)
+/speckit.specify <功能描述>  # → specs/###-feature-name/spec.md
+                            # (自動整合 constitution 約束)
+/speckit.clarify
+/speckit.plan
+/speckit.tasks
+/speckit.analyze            # 驗證符合 constitution
+/speckit.implement
+```
+
+### Key Characteristics
+
+- **Project-Level**: Bank Profile (00-70) describes the entire project, not individual features
+- **Feature-Level**: Technical SDD (spec/plan/tasks) implements specific features based on Bank Profile requirements
+- **Review as Gate**: `/speckit.review` acts as quality gate, ensuring Bank Profile is complete and consistent before constitution building
+- **Constitution as Foundation**: Project-specific constraints from constitution.md automatically apply to all features
+- **Dependency-Aware**: Later commands (e.g., compliance) can reference earlier documents (e.g., risk, infosec)
+- **Optional**: If Bank Profile files don't exist, commands generate from scratch with intelligent Q&A
+
+### Critical Integration Points
+
+1. **Bank Profile → Review**: `/speckit.review` validates 00-70 files and generates PROJECT_SUMMARY.md
+2. **Review → Constitution**: `/speckit.constitution` reads PROJECT_SUMMARY.md to extract project-specific constraints
+3. **Constitution → Features**: `/speckit.specify` automatically inherits constraints from constitution.md
+4. **Features → Validation**: `/speckit.analyze` verifies spec.md complies with constitution
+
+### Integration with Core SDD Workflow
+
+- Bank Profile commands are **optional** - existing `specify → clarify → plan → tasks → implement` workflow still works
+- Use Bank Profile when:
+  - Working on banking/financial/healthcare projects with strict compliance
+  - Need cross-department alignment (Business, InfoSec, Legal, Audit)
+  - Regulatory requirements must be traceable to technical implementation
+  - Project has non-negotiable constraints (tech stack, process, compliance)
+- Skip Bank Profile for:
+  - Simple internal tools
+  - Rapid prototyping
+  - Non-regulated industries
+  - Projects without strict constraints
 
 ## Project Context
 
