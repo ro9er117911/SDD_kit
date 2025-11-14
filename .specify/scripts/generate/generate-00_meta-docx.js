@@ -570,6 +570,6 @@ const doc = new Document({
 });
 
 Packer.toBuffer(doc).then(buffer => {
-  fs.writeFileSync("/Users/ro9air/SDD_repo/specs/meta/00_meta.docx", buffer);
-  console.log("DOCX document generated successfully: /Users/ro9air/SDD_repo/specs/meta/00_meta.docx");
+  fs.writeFileSync("/Users/ro9air/SDD_repo/output/00_meta.docx", buffer);
+  console.log("DOCX document generated successfully: /Users/ro9air/SDD_repo/output/00_meta.docx");
 });

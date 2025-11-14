@@ -320,5 +320,5 @@ add_content_slide(
 )
 
 # Save presentation
-prs.save("/Users/ro9air/SDD_repo/specs/meta/00_meta.pptx")
-print("PPTX presentation generated successfully: /Users/ro9air/SDD_repo/specs/meta/00_meta.pptx")
+prs.save("/Users/ro9air/SDD_repo/output/00_meta.pptx")
+print("PPTX presentation generated successfully: /Users/ro9air/SDD_repo/output/00_meta.pptx")

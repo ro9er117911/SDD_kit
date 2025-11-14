@@ -29,7 +29,7 @@ except:
 
 # Create PDF
 doc = SimpleDocTemplate(
-    "/Users/ro9air/SDD_repo/specs/meta/00_meta.pdf",
+    "/Users/ro9air/SDD_repo/output/00_meta.pdf",
     pagesize=A4,
     rightMargin=72, leftMargin=72,
     topMargin=72, bottomMargin=72
@@ -377,4 +377,4 @@ story.append(version_table)
 
 # Build PDF
 doc.build(story)
-print("PDF document generated successfully: /Users/ro9air/SDD_repo/specs/meta/00_meta.pdf")
+print("PDF document generated successfully: /Users/ro9air/SDD_repo/output/00_meta.pdf")
