@@ -57,7 +57,7 @@ $ARGUMENTS
 |------|--------|------------|
 | 30_risk_control.md | 強烈建議 | 缺少風險管理框架 |
 | 40_infosec.md | 強烈建議 | 缺少資安需求定義 |
-| 50_compliance.md | 建議 | 可能不符合法遵要求 |
+| 60_law.md | 建議 | 可能不符合法遵要求 |
 | 60_audit.md | 建議 | 缺少稽核追蹤需求 |
 | 70_nfr.md | 建議 | 缺少非功能需求定義 |
 
@@ -78,7 +78,7 @@ graph TD
     B --> C[20_process.md]
     C --> D[30_risk_control.md]
     D --> E[40_infosec.md]
-    E --> F[50_compliance.md]
+    E --> F[60_law.md]
     F --> G[60_audit.md]
     D --> G
     E --> G
@@ -95,7 +95,7 @@ graph TD
 1. **00_meta.md → 其他文件**:
    - [ ] 利害關係人在 RACI 矩陣中都有定義 (30/40/50/60)
    - [ ] 團隊成員在角色權限矩陣中都有定義 (40_infosec.md)
-   - [ ] 監理要求在法遵文件中有對應 (50_compliance.md)
+   - [ ] 監理要求在法遵文件中有對應 (60_law.md)
 
 2. **10_business.md → 20_process.md**:
    - [ ] 使用者故事 (10) 對應到流程步驟 (20)
@@ -109,11 +109,11 @@ graph TD
    - [ ] 資安風險 (30) 有對應的資安控制 (40)
    - [ ] KRI 監控指標 (30) 有對應的監控機制 (40 日誌)
 
-5. **40_infosec.md → 50_compliance.md**:
+5. **40_infosec.md → 60_law.md**:
    - [ ] 資安控制 (40) 符合法遵要求 (50)
    - [ ] 資料分級 (40) 符合個資法要求 (50)
 
-6. **50_compliance.md → 60_audit.md**:
+6. **60_law.md → 60_audit.md**:
    - [ ] 法遵證據留存 (50) 有對應的稽核日誌 (60)
    - [ ] 法遵控制點 (50) 可透過稽核驗證 (60)
 
@@ -209,7 +209,7 @@ graph TD
 - 關鍵角色權限: [列出主要角色]
 
 ### 法遵要求摘要
-[從 50_compliance.md 提煉]
+[從 60_law.md 提煉]
 - 適用法規: [REG-001, REG-002...]
 - 關鍵法遵控制點: [CP-XXX]
 - 證據留存期限: [最長 X 年]
@@ -293,7 +293,7 @@ graph TD
 - [x] 20_process.md
 - [x] 30_risk_control.md
 - [x] 40_infosec.md
-- [ ] 50_compliance.md (缺少)
+- [ ] 60_law.md (缺少)
 - [x] 60_audit.md
 - [x] 70_nfr.md
 
@@ -335,7 +335,7 @@ graph TD
 ⚠️ 需處理的警告 (3 項):
   - [W001] 40_infosec.md 缺少「分析人員」角色權限定義
   - [W002] 70_nfr.md 的 RTO 與 30_risk_control.md 建議不一致
-  - [W003] 60_audit.md 的日誌保留期限與 50_compliance.md 法規要求不一致
+  - [W003] 60_audit.md 的日誌保留期限與 60_law.md 法規要求不一致
 
 是否現在處理警告? (yes/no/later)
 ```

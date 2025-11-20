@@ -24,7 +24,7 @@ $ARGUMENTS
 1. **檢查當前環境**：
    - 執行 `git rev-parse --show-toplevel` 取得 repo root
    - 若不在 git repo 中，則使用當前目錄作為 REPO_ROOT
-   - 設定 META_DIR = `$REPO_ROOT/specs/meta`（專案層級元資料存放位置）
+   - 設定 META_DIR = `$REPO_ROOT/project/meta`（專案層級元資料存放位置）
 
 2. **檢查既有 meta 文件**：
    - 若 `$META_DIR/00_meta.md` 已存在，詢問使用者：
@@ -272,11 +272,11 @@ $ARGUMENTS
 
 1. **建立目錄結構**：
    ```bash
-   mkdir -p $REPO_ROOT/specs/meta
+   mkdir -p $REPO_ROOT/project/meta
    ```
 
 2. **寫入 00_meta.md**：
-   - 路徑：`$REPO_ROOT/specs/meta/00_meta.md`
+   - 路徑：`$REPO_ROOT/project/meta/00_meta.md`
    - 若為 `merge` 模式，保留既有章節並更新指定章節
 
 3. **建立 session 記錄**（追蹤）：
@@ -316,7 +316,7 @@ $ARGUMENTS
 ```
 ✅ 專案元資料文件已生成
 
-📄 檔案路徑: $REPO_ROOT/specs/meta/00_meta.md
+📄 檔案路徑: $REPO_ROOT/project/meta/00_meta.md
 📊 完整度: [X]% ([已填欄位數]/[總欄位數])
 
 📋 已填寫章節:

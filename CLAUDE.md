@@ -278,7 +278,7 @@ The system now supports **banking/enterprise workflows** with additional pre-spe
 /speckit.process           # → bank-profile/20_process.md
 
 # Phase 2: Risk & Security (30-40) - Control Requirements
-/speckit.risk              # → bank-profile/30_risk_control.md
+
 /speckit.infosec           # → bank-profile/40_infosec.md
 
 # Phase 3: Compliance & Audit (50-60) - Regulatory Requirements

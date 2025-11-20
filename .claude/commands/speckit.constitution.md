@@ -126,7 +126,7 @@ $ARGUMENTS
 
 **強制審核點**:
 - [審核點 A]: [在哪個流程,為什麼必要]
-- [審核點 B]: [來自 30_risk_control.md 或 50_compliance.md]
+- [審核點 B]: [來自 30_risk_control.md 或 60_law.md]
 
 **必要的人工介入**:
 - [介入點 A]: [原因,通常來自法遵或風險要求]

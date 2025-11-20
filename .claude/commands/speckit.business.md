@@ -33,8 +33,8 @@ $ARGUMENTS
 
 1. **檢查專案環境**：
    - 執行 `git rev-parse --show-toplevel` 取得 repo root
-   - 確認是否已有 `specs/meta/00_meta.md`（若有則載入作為上下文）
-   - 設定 BUSINESS_DIR = `$REPO_ROOT/specs/business`
+   - 確認是否已有 `project/meta/00_meta.md`（若有則載入作為上下文）
+   - 設定 BUSINESS_DIR = `$REPO_ROOT/project/business`
 
 2. **檢查既有文件**：
    - 若 `$BUSINESS_DIR/10_business.md` 已存在，詢問：
@@ -332,11 +332,11 @@ $ARGUMENTS
 
 1. **建立目錄**：
    ```bash
-   mkdir -p $REPO_ROOT/specs/business
+   mkdir -p $REPO_ROOT/project/business
    ```
 
 2. **寫入文件**：
-   - 路徑：`$REPO_ROOT/specs/business/10_business.md`
+   - 路徑：`$REPO_ROOT/project/business/10_business.md`
    - 若為 `merge` 模式：保留既有故事，append 新故事並重新編號
 
 3. **產生記錄**：
@@ -366,7 +366,7 @@ $ARGUMENTS
   → 執行 `/speckit.specify --from-business-and-process`
 
 選項 C：手動檢視並補充 10_business.md
-  → 開啟 specs/business/10_business.md 檢視
+  → 開啟 project/business/10_business.md 檢視
   → 補充 [TBD] 標註的欄位
   → 執行 `/speckit.specify --from-business`
 ```
@@ -377,7 +377,7 @@ $ARGUMENTS
 ```
 ✅ 業務目標與使用者情境文件已生成
 
-📄 檔案路徑: $REPO_ROOT/specs/business/10_business.md
+📄 檔案路徑: $REPO_ROOT/project/business/10_business.md
 
 📊 內容摘要:
   ✓ 業務目標: [N] 個

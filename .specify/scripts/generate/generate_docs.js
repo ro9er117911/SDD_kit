@@ -1,7 +1,8 @@
 const fs = require('fs');
 const path = require('path');
-const { Document, Packer, Paragraph, TextRun, HeadingLevel, Table, TableRow, TableCell, WidthType, BorderStyle } = require('docx');
+const { Document, Packer, Paragraph, TextRun, HeadingLevel, ImageRun } = require('docx');
 const PptxGenJS = require('pptxgenjs');
+const MermaidRenderer = require('../utils/mermaid_renderer');
 
 // Configuration
 const BANK_PROFILE_DIR = path.join(process.cwd(), 'bank-profile');
@@ -31,10 +32,349 @@ function readFile(filename) {
     return null;
 }
 
+// Global variable for Mermaid diagrams
+let mermaidDiagrams = {};
+
+// --- PPTX Design Constants ---
+
+const DESIGN = {
+    colors: {
+        primary: 'c41e3a',      // Professional red
+        accent: '8b0000',        // Dark red accent  
+        background: 'ffffff',    // White background
+        text: '2c2c2c',          // Dark gray text
+        textLight: '666666',     // Medium gray
+        white: 'ffffff'
+    },
+    fonts: {
+        title: { size: 36, bold: true },
+        sectionTitle: { size: 28, bold: true },
+        subtitle: { size: 18, bold: false },
+        content: { size: 16, bold: false },
+        small: { size: 12, bold: false }
+    },
+    layout: {
+        margin: 0.5,
+        contentWidth: 8.5,
+        contentY: 1.4,           // Reduced from 1.8 to fix spacing
+        maxLinesPerSlide: 9,
+        lineHeight: 0.35
+    }
+};
+
+// Helper: Parse markdown formatting in text
+function parseMarkdownText(text) {
+    const parts = [];
+    let currentPos = 0;
+
+    // Regex patterns for markdown with priority (higher index = higher priority)
+    const patterns = [
+        { regex: /`(.+?)`/g, format: { fontFace: 'Courier New' }, priority: 5 },
+        { regex: /_(.+?)_/g, format: { italic: true }, priority: 2 },
+        { regex: /\*(.+?)\*/g, format: { italic: true }, priority: 3 },
+        { regex: /\*\*(.+?)\*\*/g, format: { bold: true }, priority: 4 },
+        { regex: /\*\*\*(.+?)\*\*\*/g, format: { bold: true, italic: true }, priority: 5 }
+    ];
+
+    // Find all matches across all patterns
+    const allMatches = [];
+    patterns.forEach(({ regex, format, priority }) => {
+        let match;
+        // Create a fresh regex for each pattern to reset lastIndex
+        const r = new RegExp(regex.source, regex.flags);
+        while ((match = r.exec(text)) !== null) {
+            allMatches.push({
+                start: match.index,
+                end: match.index + match[0].length,
+                innerText: match[1],
+                fullMatch: match[0],
+                format: format,
+                priority: priority,
+                length: match[0].length
+            });
+        }
+    });
+
+    // If no matches, return plain text
+    if (allMatches.length === 0) {
+        return [{ text: text, options: {} }];
+    }
+
+    // Sort by start position, then by priority (higher first), then by length (longer first)
+    allMatches.sort((a, b) => {
+        if (a.start !== b.start) return a.start - b.start;
+        if (a.priority !== b.priority) return b.priority - a.priority;
+        return b.length - a.length;
+    });
+
+    // Filter out overlapping matches - keep highest priority, longest match
+    const matches = [];
+    const used = new Set();
+
+    for (const match of allMatches) {
+        let hasOverlap = false;
+        for (let i = match.start; i < match.end; i++) {
+            if (used.has(i)) {
+                hasOverlap = true;
+                break;
+            }
+        }
+
+        if (!hasOverlap) {
+            matches.push(match);
+            for (let i = match.start; i < match.end; i++) {
+                used.add(i);
+            }
+        }
+    }
+
+    // Sort final matches by position for building output
+    matches.sort((a, b) => a.start - b.start);
+
+    // Build parts array
+    matches.forEach(match => {
+        // Add plain text before match
+        if (currentPos < match.start) {
+            const plainText = text.substring(currentPos, match.start);
+            if (plainText) {
+                parts.push({ text: plainText, options: {} });
+            }
+        }
+
+        // Add formatted text
+        parts.push({ text: match.innerText, options: match.format });
+        currentPos = match.end;
+    });
+
+    // Add remaining plain text
+    if (currentPos < text.length) {
+        const remaining = text.substring(currentPos);
+        if (remaining) {
+            parts.push({ text: remaining, options: {} });
+        }
+    }
+
+    return parts.length > 0 ? parts : [{ text: text, options: {} }];
+}
+
+// Helper: Split content into pages
+function splitContentIntoPages(items, maxLines = DESIGN.layout.maxLinesPerSlide) {
+    const pages = [];
+    let currentPage = [];
+    let currentLines = 0;
+
+    for (const item of items) {
+        const itemLines = Math.ceil(item.length / 80) || 1;
+
+        if (currentLines + itemLines > maxLines && currentPage.length > 0) {
+            pages.push(currentPage);
+            currentPage = [item];
+            currentLines = itemLines;
+        } else {
+            currentPage.push(item);
+            currentLines += itemLines;
+        }
+    }
+
+    if (currentPage.length > 0) {
+        pages.push(currentPage);
+    }
+
+    return pages;
+}
+
+// Helper: Create title slide
+function createTitleSlide(pptx, mainTitle, subtitle) {
+    const slide = pptx.addSlide();
+
+    // Red background
+    slide.background = { color: DESIGN.colors.primary };
+
+    // Decorative accent bar
+    slide.addShape(pptx.ShapeType.rect, {
+        x: 0,
+        y: 2.8,
+        w: 10,
+        h: 0.15,
+        fill: DESIGN.colors.accent
+    });
+
+    // Main title
+    slide.addText(mainTitle, {
+        x: 0.5,
+        y: 1.5,
+        w: 9,
+        h: 1.2,
+        fontSize: DESIGN.fonts.title.size,
+        bold: DESIGN.fonts.title.bold,
+        color: DESIGN.colors.white,
+        align: 'center',
+        valign: 'middle'
+    });
+
+    // Subtitle
+    slide.addText(subtitle, {
+        x: 0.5,
+        y: 3.2,
+        w: 9,
+        h: 0.8,
+        fontSize: DESIGN.fonts.subtitle.size,
+        color: DESIGN.colors.background,
+        align: 'center',
+        valign: 'middle'
+    });
+
+    return slide;
+}
+
+// Helper: Create section divider slide
+function createSectionSlide(pptx, fileName, sectionTitle) {
+    const slide = pptx.addSlide();
+
+    // Left accent block
+    slide.addShape(pptx.ShapeType.rect, {
+        x: 0,
+        y: 0,
+        w: 3.5,
+        h: 5.625,
+        fill: DESIGN.colors.primary
+    });
+
+    // Section title on accent block
+    slide.addText(sectionTitle, {
+        x: 0.3,
+        y: 2.2,
+        w: 3,
+        h: 1.5,
+        fontSize: DESIGN.fonts.sectionTitle.size,
+        bold: DESIGN.fonts.sectionTitle.bold,
+        color: DESIGN.colors.white,
+        align: 'left',
+        valign: 'middle',
+        breakLine: true
+    });
+
+    // File reference
+    slide.addText(fileName, {
+        x: 4,
+        y: 0.5,
+        w: 5.5,
+        h: 0.4,
+        fontSize: DESIGN.fonts.small.size,
+        color: DESIGN.colors.textLight,
+        align: 'left'
+    });
+
+    // Decorative accent line
+    slide.addShape(pptx.ShapeType.rect, {
+        x: 4,
+        y: 1,
+        w: 0.1,
+        h: 3.5,
+        fill: DESIGN.colors.accent
+    });
+
+    return slide;
+}
+
+// Helper: Create content slide with header
+function createContentSlide(pptx, fileName, sectionTitle, contentItems, pageNum = null, totalPages = null) {
+    const slide = pptx.addSlide();
+
+    // White background
+    slide.background = { color: DESIGN.colors.white };
+
+    // Top accent bar
+    slide.addShape(pptx.ShapeType.rect, {
+        x: 0,
+        y: 0,
+        w: 10,
+        h: 0.15,
+        fill: DESIGN.colors.accent
+    });
+
+    // File name (breadcrumb)
+    slide.addText(fileName, {
+        x: DESIGN.layout.margin,
+        y: 0.3,
+        w: 5,
+        h: 0.3,
+        fontSize: DESIGN.fonts.small.size,
+        color: DESIGN.colors.textLight,
+        align: 'left'
+    });
+
+    // Section title
+    const titleWithPage = totalPages > 1
+        ? `${sectionTitle} (${pageNum}/${totalPages})`
+        : sectionTitle;
+
+    slide.addText(titleWithPage, {
+        x: DESIGN.layout.margin,
+        y: 0.7,
+        w: 9,
+        h: 0.6,
+        fontSize: 24,
+        bold: true,
+        color: DESIGN.colors.primary,
+        align: 'left',
+        valign: 'middle'
+    });
+
+    // Decorative underline
+    slide.addShape(pptx.ShapeType.rect, {
+        x: DESIGN.layout.margin,
+        y: 1.3,  // Reduced from 1.5
+        w: 1.5,
+        h: 0.05,
+        fill: DESIGN.colors.accent
+    });
+
+    // Content text with markdown formatting
+    if (contentItems && contentItems.length > 0) {
+        let yOffset = DESIGN.layout.contentY;
+
+        contentItems.forEach((item, index) => {
+            // Parse markdown formatting
+            const textParts = parseMarkdownText(item);
+
+            // Add text with formatting
+            slide.addText(textParts, {
+                x: DESIGN.layout.margin + 0.3,
+                y: yOffset,
+                w: DESIGN.layout.contentWidth,
+                fontSize: DESIGN.fonts.content.size,
+                color: DESIGN.colors.text,
+                align: 'left',
+                valign: 'top'
+            });
+
+            // Calculate height for next item
+            const itemLines = Math.ceil(item.length / 80) || 1;
+            yOffset += itemLines * 0.28;
+        });
+    }
+
+    // Footer with page number indicator
+    if (totalPages > 1) {
+        slide.addText(`${pageNum} / ${totalPages}`, {
+            x: 8.5,
+            y: 5.1,
+            w: 1,
+            h: 0.3,
+            fontSize: 10,
+            color: DESIGN.colors.textLight,
+            align: 'right'
+        });
+    }
+
+    return slide;
+}
+
 // --- DOCX Generation ---
 
 async function generateDocx() {
-    console.log('Generating DOCX...');
+    console.log('\nGenerating DOCX...');
     const sections = [];
 
     for (const file of FILES) {
@@ -43,11 +383,48 @@ async function generateDocx() {
 
         const lines = content.split('\n');
         const children = [];
+        let inMermaidBlock = false;
+        let mermaidLineStart = -1;
 
-        for (let line of lines) {
-            line = line.trim();
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i].trim();
+
+            // Detect Mermaid blocks
+            if (line.startsWith('```mermaid')) {
+                inMermaidBlock = true;
+                mermaidLineStart = i;
+                continue;
+            }
+            if (inMermaidBlock && line.startsWith('```')) {
+                inMermaidBlock = false;
+                // Insert Mermaid image if available
+                const diagramKey = `${file}_${mermaidLineStart}`;
+                if (mermaidDiagrams[diagramKey]) {
+                    try {
+                        const imageBuffer = fs.readFileSync(mermaidDiagrams[diagramKey]);
+                        children.push(new Paragraph({
+                            children: [
+                                new ImageRun({
+                                    data: imageBuffer,
+                                    transformation: {
+                                        width: 600,
+                                        height: 400
+                                    }
+                                })
+                            ]
+                        }));
+                    } catch (err) {
+                        console.error(`Failed to insert image: ${err.message}`);
+                    }
+                }
+                continue;
+            }
+            if (inMermaidBlock) {
+                continue; // Skip mermaid code lines
+            }
+
             if (!line) {
-                children.push(new Paragraph({ text: "" })); 
+                children.push(new Paragraph({ text: "" }));
                 continue;
             }
 
@@ -69,29 +446,18 @@ async function generateDocx() {
                     heading: HeadingLevel.HEADING_3,
                     spacing: { before: 200, after: 100 }
                 }));
-            } else if (line.startsWith('#### ')) {
-                children.push(new Paragraph({
-                    text: line.replace('#### ', ''),
-                    heading: HeadingLevel.HEADING_4,
-                    spacing: { before: 200, after: 100 }
-                }));
             } else if (line.startsWith('- ') || line.startsWith('* ')) {
                 children.push(new Paragraph({
                     text: line.replace(/^[-*] /, ''),
                     bullet: { level: 0 }
                 }));
             } else if (/^\d+\.\s/.test(line)) {
-                 children.push(new Paragraph({
-                    text: line.replace(/^\d+\.\s/, ''),
-                    bullet: { level: 0 } // Simplified to bullet for now
-                }));
-            } else if (line.startsWith('|')) {
-                // Simple table handling - just render as text for now to avoid complex parsing in this quick script
-                // Or better, skip if it's a separator line
-                if (line.includes('---')) continue;
                 children.push(new Paragraph({
-                    children: [new TextRun({ text: line, font: "Courier New", size: 20 })]
+                    text: line.replace(/^\d+\.\s/, ''),
+                    bullet: { level: 0 }
                 }));
+            } else if (line.startsWith('|') && line.includes('---')) {
+                continue; // Skip table separators
             } else {
                 children.push(new Paragraph({
                     children: [new TextRun({ text: line })]
@@ -111,119 +477,207 @@ async function generateDocx() {
 
     const buffer = await Packer.toBuffer(doc);
     fs.writeFileSync(path.join(OUTPUT_DIR, 'Bank_Profile_Full.docx'), buffer);
-    console.log('DOCX generated: Bank_Profile_Full.docx');
+    console.log('✓ DOCX generated: Bank_Profile_Full.docx');
 }
 
 // --- PPTX Generation ---
 
 async function generatePptx() {
-    console.log('Generating PPTX...');
+    console.log('\nGenerating PPTX with professional design...');
     const pptx = new PptxGenJS();
     pptx.layout = 'LAYOUT_16x9';
 
-    // Title Slide
-    let slide = pptx.addSlide();
-    slide.addText('Bank Profile Project Overview', { x: 1, y: 1, w: '80%', h: 1, fontSize: 36, align: 'center' });
-    slide.addText('Generated from SDD Bank Profile (00-70)', { x: 1, y: 2.5, w: '80%', h: 1, fontSize: 18, align: 'center', color: '666666' });
+    // Configure presentation properties
+    pptx.author = 'SDD Bank Profile Generator';
+    pptx.company = 'Bank Profile Project';
+    pptx.subject = 'Bank Profile Documentation';
+    pptx.title = 'Bank Profile Presentation';
 
+    // Create title slide
+    createTitleSlide(
+        pptx,
+        'Bank Profile Project Overview',
+        '系統設計文件 | System Design Document'
+    );
+
+    // Process each file
     for (const file of FILES) {
         const content = readFile(file);
         if (!content) continue;
 
         const lines = content.split('\n');
-        let currentTitle = file;
-        let currentContent = [];
 
-        // Create a slide for the file title
-        let fileSlide = pptx.addSlide();
-        fileSlide.addText(file, { x: 0.5, y: 0.5, w: '90%', h: 0.8, fontSize: 32, color: '003366', bold: true });
-        
-        let yPos = 1.5;
-        
-        for (let line of lines) {
-            line = line.trim();
-            if (!line) continue;
-            if (line.startsWith('|') || line.includes('---')) continue; // Skip tables and separators for PPTX simplicity
-
-            if (line.startsWith('# ')) {
-                 // Main title already handled
-            } else if (line.startsWith('## ')) {
-                // New slide for major sections
-                if (currentContent.length > 0) {
-                     // Flush previous content to slide
-                     // (Simplified: just creating new slides for headers)
-                }
-                let sectionSlide = pptx.addSlide();
-                sectionSlide.addText(file, { x: 0.5, y: 0.2, w: '90%', h: 0.5, fontSize: 14, color: '999999' });
-                sectionSlide.addText(line.replace('## ', ''), { x: 0.5, y: 0.8, w: '90%', h: 0.6, fontSize: 28, color: '003366', bold: true });
-                yPos = 1.6;
-                currentContent = []; // Reset content tracker (not really used in this simple loop but good for logic)
-            } else if (line.startsWith('### ')) {
-                 // Subheader
-                 // If we are on a slide, add subheader
-                 // We need to keep track of "current slide" object, but PptxGenJS adds slides sequentially.
-                 // For simplicity in this script, we'll just add text to the "last" slide added, assuming it's the section slide.
-                 // But we can't easily get "last slide".
-                 // Let's just add a text box.
-                 // NOTE: This is a very basic converter.
-            } else {
-                // Content text
-                // We can't easily append to the "current slide" without the object reference.
-                // Let's refactor slightly to keep reference.
-            }
-        }
-        
-        // REFACTORING PPTX LOOP FOR BETTER SLIDE HANDLING
-        // Re-parsing file for PPTX structure
+        // Parse file into sections
         const sections = [];
-        let currentSection = { title: file, items: [] };
-        
-        for (let line of lines) {
-            line = line.trim();
-            if (!line) continue;
-            if (line.startsWith('# ')) continue; // Skip file title
-            
+        let currentSection = { title: file, items: [], mermaidImages: [] };
+        let inMermaidBlock = false;
+        let mermaidLineStart = -1;
+
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i].trim();
+            if (!line && !inMermaidBlock) continue;
+
+            // Detect Mermaid blocks
+            if (line.startsWith('```mermaid')) {
+                inMermaidBlock = true;
+                mermaidLineStart = i;
+                continue;
+            }
+            if (inMermaidBlock && line.startsWith('```')) {
+                inMermaidBlock = false;
+                const diagramKey = `${file}_${mermaidLineStart}`;
+                if (mermaidDiagrams[diagramKey]) {
+                    currentSection.mermaidImages.push(mermaidDiagrams[diagramKey]);
+                }
+                continue;
+            }
+            if (inMermaidBlock) continue;
+
+            // Skip main file title
+            if (line.startsWith('# ')) continue;
+
+            // New section on ## header
             if (line.startsWith('## ')) {
-                sections.push(currentSection);
-                currentSection = { title: line.replace('## ', ''), items: [] };
-            } else if (line.startsWith('- ') || line.startsWith('* ')) {
+                if (currentSection.items.length > 0 || currentSection.mermaidImages.length > 0 || currentSection.title !== file) {
+                    sections.push(currentSection);
+                }
+                currentSection = {
+                    title: line.replace('## ', ''),
+                    items: [],
+                    mermaidImages: []
+                };
+            }
+            // Add content items
+            else if (line.startsWith('- ') || line.startsWith('* ')) {
                 currentSection.items.push(line.replace(/^[-*] /, '• '));
-            } else if (/^\d+\.\s/.test(line)) {
+            }
+            else if (/^\d+\.\s/.test(line)) {
                 currentSection.items.push(line);
-            } else if (line.length > 0 && !line.startsWith('|') && !line.includes('---') && !line.startsWith('#')) {
-                 if (line.length < 100) { // Only short lines as bullet points equivalent
+            }
+            else if (line.startsWith('### ')) {
+                currentSection.items.push('\n' + line.replace('### ', '▸ '));
+            }
+            // Regular text (skip tables and horizontal rules)
+            else if (!line.startsWith('|') && !line.includes('---') && !line.startsWith('#')) {
+                if (line.length < 150) {
                     currentSection.items.push(line);
-                 }
+                }
             }
         }
-        sections.push(currentSection);
 
-        // Render sections to slides
+        // Push last section
+        if (currentSection.items.length > 0 || currentSection.mermaidImages.length > 0) {
+            sections.push(currentSection);
+        }
+
+        // Render sections to slides with pagination
         for (const section of sections) {
-            if (section.items.length === 0 && section.title === file) continue; // Skip empty initial
+            if (section.items.length === 0 && section.mermaidImages.length === 0) continue;
 
-            let s = pptx.addSlide();
-            s.addText(file, { x: 0.5, y: 0.2, w: '90%', h: 0.4, fontSize: 12, color: '888888' });
-            s.addText(section.title, { x: 0.5, y: 0.7, w: '90%', h: 0.6, fontSize: 24, color: '003366', bold: true });
-            
-            let contentText = section.items.slice(0, 12).join('\n'); // Limit items per slide
-            if (contentText) {
-                s.addText(contentText, { x: 0.8, y: 1.5, w: '85%', h: 5.0, fontSize: 16, color: '333333', lineSpacing: 28 });
+            // Create section divider for major sections (not file-level)
+            if (section.title !== file) {
+                createSectionSlide(pptx, file, section.title);
+            }
+
+            // Add Mermaid diagrams if present
+            if (section.mermaidImages && section.mermaidImages.length > 0) {
+                for (const imagePath of section.mermaidImages) {
+                    const slide = pptx.addSlide();
+
+                    // White background
+                    slide.background = { color: DESIGN.colors.white };
+
+                    // Top accent bar
+                    slide.addShape(pptx.ShapeType.rect, {
+                        x: 0,
+                        y: 0,
+                        w: 10,
+                        h: 0.15,
+                        fill: DESIGN.colors.accent
+                    });
+
+                    // Title
+                    slide.addText(section.title, {
+                        x: DESIGN.layout.margin,
+                        y: 0.7,
+                        w: 9,
+                        h: 0.6,
+                        fontSize: 24,
+                        bold: true,
+                        color: DESIGN.colors.primary,
+                        align: 'center'
+                    });
+
+                    // Add Mermaid diagram image
+                    slide.addImage({
+                        path: imagePath,
+                        x: 1,
+                        y: 1.5,
+                        w: 8,
+                        h: 4
+                    });
+                }
+            }
+
+            // Split content into pages if needed
+            const pages = splitContentIntoPages(section.items, DESIGN.layout.maxLinesPerSlide);
+
+            // Create content slides
+            for (let i = 0; i < pages.length; i++) {
+                const pageNum = i + 1;
+                const totalPages = pages.length;
+
+                createContentSlide(
+                    pptx,
+                    file,
+                    section.title,
+                    pages[i],
+                    pageNum,
+                    totalPages
+                );
             }
         }
     }
 
     await pptx.writeFile({ fileName: path.join(OUTPUT_DIR, 'Bank_Profile_Presentation.pptx') });
-    console.log('PPTX generated: Bank_Profile_Presentation.pptx');
+    console.log('✓ PPTX generated successfully: Bank_Profile_Presentation.pptx');
+    console.log('  - Red/white color scheme');
+    console.log('  - Markdown formatting (bold/italic)');
+    console.log('  - Auto-pagination for long content');
+    console.log('  - Mermaid diagrams included');
 }
 
 // Run
 (async () => {
     try {
+        // Initialize Mermaid renderer
+        console.log('\n📊 Initializing Mermaid Renderer...');
+        const mermaidRenderer = new MermaidRenderer({
+            outputDir: path.join(process.cwd(), '.temp', 'mermaid')
+        });
+
+        // Pre-render all Mermaid diagrams
+        for (const file of FILES) {
+            const content = readFile(file);
+            if (!content) continue;
+
+            const diagrams = await mermaidRenderer.renderAll(content);
+            diagrams.forEach((diagram, index) => {
+                const key = `${file}_${diagram.startLine}`;
+                mermaidDiagrams[key] = diagram.imagePath;
+            });
+        }
+
+        // Generate documents
         await generateDocx();
         await generatePptx();
-        console.log('All documents generated successfully.');
+
+        console.log('\n✅ All documents generated successfully.');
+
+        // Optional: Clean up Mermaid temp files
+        // Uncomment if you want to remove temp images after generation
+        // mermaidRenderer.cleanup();
     } catch (error) {
-        console.error('Error generating documents:', error);
+        console.error('\n❌ Error generating documents:', error);
     }
 })();

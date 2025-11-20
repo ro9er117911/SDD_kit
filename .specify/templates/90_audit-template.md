@@ -99,7 +99,7 @@
 | user_id | String | 是 | 操作人員識別碼 | "user@example.com" |
 | user_role | String | 是 | 操作人員角色 | "analyst" |
 | session_id | UUID | 是 | 使用者會話識別碼 | "a1b2c3d4-e5f6-7890-abcd-ef1234567890" |
-| source_ip | IP Address | 是 | 來源 IP 位址 | "192.168.1.100" |
+| source_ip | IP Address | 是 | 來源 IP 位址 | "[內部IP]" |
 | result | Enum | 是 | 操作結果（success/failure/error） | "success" |
 | message | String | 否 | 事件描述訊息 | "User viewed case STR-2025-001" |
 
@@ -126,7 +126,7 @@
   "user_id": "analyst001@bank.com",
   "user_role": "analyst",
   "session_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-  "source_ip": "192.168.1.100",
+  "source_ip": "[使用者IP]",
   "result": "success",
   "message": "User viewed STR case original data",
   "case_id": "STR-2025-001",
@@ -179,7 +179,7 @@
   "user_id": "admin@bank.com",
   "user_role": "system_admin",
   "session_id": "b2c3d4e5-f6g7-8901-bcde-fg2345678901",
-  "source_ip": "10.0.1.50",
+  "source_ip": "[伺服器IP]",
   "result": "success",
   "message": "Deployed new model version to production",
   "model_version": "v1.3.0",

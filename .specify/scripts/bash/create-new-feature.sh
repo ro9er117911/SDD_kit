@@ -130,7 +130,7 @@ fi
 
 cd "$REPO_ROOT"
 
-SPECS_DIR="$REPO_ROOT/specs"
+SPECS_DIR="$REPO_ROOT/project"
 mkdir -p "$SPECS_DIR"
 
 # Function to generate branch name with stop word filtering and length filtering
@@ -242,10 +242,21 @@ fi
 
 FEATURE_DIR="$SPECS_DIR/$BRANCH_NAME"
 mkdir -p "$FEATURE_DIR"
+mkdir -p "$FEATURE_DIR/export"
 
-TEMPLATE="$REPO_ROOT/.specify/templates/spec-template.md"
-SPEC_FILE="$FEATURE_DIR/spec.md"
-if [ -f "$TEMPLATE" ]; then cp "$TEMPLATE" "$SPEC_FILE"; else touch "$SPEC_FILE"; fi
+TEMPLATE="$REPO_ROOT/.specify/templates/00_meta-template.md"
+SPEC_FILE="$FEATURE_DIR/00meta.md"
+if [ -f "$TEMPLATE" ]; then 
+    cp "$TEMPLATE" "$SPEC_FILE"
+else 
+    # Fallback to older template if new one doesn't exist
+    OLD_TEMPLATE="$REPO_ROOT/.specify/templates/spec-template.md"
+    if [ -f "$OLD_TEMPLATE" ]; then
+        cp "$OLD_TEMPLATE" "$SPEC_FILE"
+    else
+        touch "$SPEC_FILE"
+    fi
+fi
 
 # Set the SPECIFY_FEATURE environment variable for the current session
 export SPECIFY_FEATURE="$BRANCH_NAME"

@@ -1,5 +1,5 @@
 ---
-description: 從專案上下文產生稽核可稽性需求文件（60_audit.md），包含必須可稽核的事件、日誌結構、資料保留期限與稽核報表需求。
+description: 從專案上下文產生稽核可稽性需求文件（90_audit.md），包含必須可稽核的事件、日誌結構、資料保留期限與稽核報表需求。
 ---
 
 ## 使用者輸入
@@ -14,7 +14,7 @@ $ARGUMENTS
 
 ## 目標定位
 
-**60_audit.md 關注**：
+**90_audit.md 關注**：
 - WHAT-TO-LOG：需記錄什麼事件（稽核事件清單）
 - HOW-TO-LOG：如何記錄（日誌結構、格式）
 - HOW-LONG：保留多久（資料保留期限）
@@ -29,8 +29,8 @@ $ARGUMENTS
    - `20_process.md`（業務流程步驟）
    - `30_risk_control.md`（風險控制措施）
    - `40_infosec.md`（資安日誌需求）
-   - `50_compliance.md`（法遵證據留存要求）
-   - 設定 AUDIT_DIR = `$REPO_ROOT/specs/audit`
+   - `60_law.md`（法遵證據留存要求）
+   - 設定 AUDIT_DIR = `$REPO_ROOT/project/audit`
 
 2. **檢查既有文件**：若存在詢問 yes/no/merge
 
@@ -127,7 +127,7 @@ $ARGUMENTS
    ```
    日誌需要保留多久？
 
-   **從 50_compliance.md 推導法規要求**:
+   **從 60_law.md 推導法規要求**:
    | 法規 | 要求保留期限 | 適用日誌類型 |
    |------|-------------|-------------|
    | [法規 1] | [期限] | [日誌類型] |
@@ -178,7 +178,7 @@ $ARGUMENTS
    - KRI「模型建議被修改率」→ 需要報表「分析人員模型使用情況統計」
    - KRI「異常存取次數」→ 需要報表「異常存取行為報告」
 
-   **從 50_compliance.md 推導**（法遵報告需要的證據）:
+   **從 60_law.md 推導**（法遵報告需要的證據）:
    - 法遵報告需要「模型使用情況」→ 需要稽核報表提供資料
 
    **推導的稽核報表**:
@@ -233,7 +233,7 @@ $ARGUMENTS
 - 資安日誌需求 → 稽核事件（安全類）
 - 資料遮罩規則 → 日誌遮罩規則
 
-**從 50_compliance.md 整合法遵要求**：
+**從 60_law.md 整合法遵要求**：
 - 證據留存要求 → 日誌保留期限
 - 法遵報告需求 → 稽核報表
 
@@ -270,7 +270,7 @@ $ARGUMENTS
 
 **一致性檢查**：
 - [ ] 稽核事件與 20_process.md 的流程步驟對齊
-- [ ] 資料保留期限與 50_compliance.md 的法遵要求一致
+- [ ] 資料保留期限與 60_law.md 的法遵要求一致
 - [ ] 稽核報表與 30_risk_control.md 的 KRI 對齊
 - [ ] RACI 角色與 00_meta.md 的利害關係人一致
 
@@ -293,7 +293,7 @@ $ARGUMENTS
 ```
 ✅ 稽核可稽性需求文件已生成
 
-📄 檔案路徑: specs/audit/60_audit.md
+📄 檔案路徑: project/audit/60_audit.md
 
 📊 稽核需求摘要:
   ✓ 稽核事件: [N] 個
@@ -332,7 +332,7 @@ $ARGUMENTS
 - **20_process.md** 的流程步驟 → **60_audit.md** 的稽核事件
 - **30_risk_control.md** 的 KRI → **60_audit.md** 的稽核報表
 - **40_infosec.md** 的資安日誌 → **60_audit.md** 的安全事件
-- **50_compliance.md** 的證據留存 → **60_audit.md** 的資料保留期限
+- **60_law.md** 的證據留存 → **60_audit.md** 的資料保留期限
 
 ## 特殊模式
 
@@ -341,7 +341,7 @@ $ARGUMENTS
 - 使用標準稽核事件模板
 
 ### 從法遵繼承 (--from-compliance)
-- 從 50_compliance.md 的證據留存自動推導稽核需求
+- 從 60_law.md 的證據留存自動推導稽核需求
 - 減少問答至 2-3 題
 
 ### 高稽核模式 (--high-audit)

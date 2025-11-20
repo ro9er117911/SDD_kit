@@ -11,7 +11,10 @@
       "Bash(python:*)",
       "Skill(document-skills:pptx)",
       "Bash(fc-list:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "SlashCommand(/speckit.meta 「Data-driven詐騙監控助理」\n\n加入電信資料跟社群媒體案例做高風險資料庫\n\n⇒後續用AI模型來自動化判讀並輸出定期報表)",
+      "Bash(git rev-parse:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []

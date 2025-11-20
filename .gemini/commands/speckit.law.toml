@@ -1,8 +1,8 @@
-description = "從專案上下文產生法遵依據與系統對應文件（50_compliance.md），包含適用法規、法規需求對應、法遵控制點與證據留存要求。"
+description = "從專案上下文產生法遵依據與系統對應文件（60_law.md），包含適用法規、法規需求對應、法遵控制點與證據留存要求。"
 
 prompt = """
 ---
-description: 從專案上下文產生法遵依據與系統對應文件（50_compliance.md），包含適用法規、法規需求對應、法遵控制點與證據留存要求。
+description: 從專案上下文產生法遵依據與系統對應文件（60_law.md），包含適用法規、法規需求對應、法遵控制點與證據留存要求。
 ---
 
 ## 使用者輸入
@@ -17,7 +17,7 @@ $ARGUMENTS
 
 ## 目標定位
 
-**50_compliance.md 關注**：
+**60_law.md 關注**：
 - WHAT-LAW：需遵守什麼法規（法規識別）
 - WHY-APPLY：為什麼適用（觸發條件）
 - WHAT-REQUIRE：法規要求什麼（條文解讀）
@@ -33,7 +33,7 @@ $ARGUMENTS
    - `10_business.md`（業務性質）
    - `30_risk_control.md`（合規風險）
    - `40_infosec.md`（資安法規）
-   - 設定 COMPLIANCE_DIR = `$REPO_ROOT/specs/compliance`
+   - 設定 COMPLIANCE_DIR = `$REPO_ROOT/project/compliance`
 
 2. **檢查既有文件**：若存在詢問 yes/no/merge
 
@@ -241,7 +241,7 @@ $ARGUMENTS
 
 **從 40_infosec.md 整合資安法規要求**：
 - 個資法要求 → 已定義於 40_infosec.md 的資料保護措施
-- 避免重複，50_compliance.md 引用 40_infosec.md 的控制
+- 避免重複，60_law.md 引用 40_infosec.md 的控制
 
 ### 5. 法遵報告需求生成
 
@@ -277,7 +277,7 @@ $ARGUMENTS
 - [ ] 文件留存技術可行（儲存容量、查詢效能）
 - [ ] 法遵報告可自動化產出或有明確手動流程
 
-### 7. 生成 50_compliance.md
+### 7. 生成 60_law.md
 
 1. 載入模板並填寫所有自動生成內容
 2. 插入法規需求對應表、法遵控制點
@@ -290,7 +290,7 @@ $ARGUMENTS
 ```
 ✅ 法遵依據與系統對應文件已生成
 
-📄 檔案路徑: specs/compliance/50_compliance.md
+📄 檔案路徑: project/compliance/60_law.md
 
 📊 法遵摘要:
   ✓ 適用法規: [N] 項
@@ -325,10 +325,10 @@ $ARGUMENTS
 
 ## 與其他命令的整合
 
-- **00_meta.md** 的監理要求 → **50_compliance.md** 的適用法規
-- **30_risk_control.md** 的合規風險 → **50_compliance.md** 的法遵控制點
-- **40_infosec.md** 的資安控制 → **50_compliance.md** 引用（避免重複）
-- **60_audit.md** 的稽核需求 ← **50_compliance.md** 的證據留存要求
+- **00_meta.md** 的監理要求 → **60_law.md** 的適用法規
+- **30_risk_control.md** 的合規風險 → **60_law.md** 的法遵控制點
+- **40_infosec.md** 的資安控制 → **60_law.md** 引用（避免重複）
+- **60_audit.md** 的稽核需求 ← **60_law.md** 的證據留存要求
 
 ## 特殊模式
 
@@ -376,6 +376,6 @@ $ARGUMENTS
 2. **法規變更**：建立法規追蹤機制，避免法規變更後系統未更新
 3. **證據留存**：確保技術可行（儲存成本、查詢效能）
 4. **法遵優先**：法規要求不可妥協，技術需配合法遵
-5. **避免重複**：資安法規要求已在 40_infosec.md，50_compliance.md 引用即可
+5. **避免重複**：資安法規要求已在 40_infosec.md，60_law.md 引用即可
 
 """

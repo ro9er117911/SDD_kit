@@ -33,9 +33,9 @@ $ARGUMENTS
    - `20_process.md`（流程步驟、時間要求）
    - `30_risk_control.md`（風險控制、KRI）
    - `40_infosec.md`（資安需求）
-   - `50_compliance.md`（法遵需求）
+   - `60_law.md`（法遵需求）
    - `60_audit.md`（稽核需求）
-   - 設定 NFR_DIR = `$REPO_ROOT/specs/nfr`
+   - 設定 NFR_DIR = `$REPO_ROOT/project/nfr`
 
 2. **檢查既有文件**：若存在詢問 yes/no/merge
 
@@ -130,7 +130,7 @@ $ARGUMENTS
    - 建議 RTO：[2 小時 / 4 小時 / 8 小時]
    - 建議 RPO：[0 / 15 分鐘 / 1 小時]
 
-   **從 50_compliance.md 推導**（法規要求）:
+   **從 60_law.md 推導**（法規要求）:
    - 法規是否要求資料不可遺失：是/否
    - 若是 → RPO = 0
 
@@ -240,7 +240,7 @@ $ARGUMENTS
 **可用性需求生成**：
 - 從業務重要性推導 SLA 目標
 - 從 30_risk_control.md 的風險等級推導 RTO/RPO
-- 從 50_compliance.md 的法規要求調整 RPO
+- 從 60_law.md 的法規要求調整 RPO
 - 生成 NFR-AVAIL-*, NFR-DR-* 編號
 
 **監控需求生成**：
@@ -251,7 +251,7 @@ $ARGUMENTS
 
 **安全性與合規性 NFR 整合**：
 - 從 40_infosec.md 整合安全性 NFR（傳輸加密、靜態加密、密碼強度等）
-- 從 50_compliance.md 整合合規性 NFR（個資法、洗錢防制法等）
+- 從 60_law.md 整合合規性 NFR（個資法、洗錢防制法等）
 - 生成 NFR-SEC-*, NFR-COMP-* 編號
 
 **擴展性需求生成**：
@@ -282,7 +282,7 @@ $ARGUMENTS
 - Session 逾時 → NFR-SEC-004
 - API 速率限制 → NFR-SEC-005
 
-**從 50_compliance.md 整合法遵需求**：
+**從 60_law.md 整合法遵需求**：
 - 個資法 → NFR-COMP-001
 - 洗錢防制法 → NFR-COMP-002
 - 稽核可追溯性 → NFR-COMP-003
@@ -348,7 +348,7 @@ $ARGUMENTS
 - [ ] 效能需求與 20_process.md 的流程時間對齊
 - [ ] RTO/RPO 與 30_risk_control.md 的風險等級一致
 - [ ] 安全性 NFR 與 40_infosec.md 一致
-- [ ] 合規性 NFR 與 50_compliance.md 一致
+- [ ] 合規性 NFR 與 60_law.md 一致
 - [ ] 監控指標與 30_risk_control.md 的 KRI 對齊
 
 **可測試性檢查**：
@@ -370,7 +370,7 @@ $ARGUMENTS
 ```
 ✅ 非功能需求文件已生成
 
-📄 檔案路徑: specs/nfr/70_nfr.md
+📄 檔案路徑: project/nfr/70_nfr.md
 
 📊 NFR 摘要:
   ✓ 總計 NFR: [N] 個
@@ -380,7 +380,7 @@ $ARGUMENTS
     - 災難復原（NFR-DR-*）: [A] 個
     - 監控需求（NFR-MON-*）: [B] 個
     - 安全性需求（NFR-SEC-*）: [C] 個（整合自 40_infosec.md）
-    - 合規性需求（NFR-COMP-*）: [D] 個（整合自 50_compliance.md）
+    - 合規性需求（NFR-COMP-*）: [D] 個（整合自 60_law.md）
     - 擴展性需求（NFR-SCALE-*）: [E] 個
     - 模型治理（NFR-MODEL-*）: [F] 個
 
@@ -417,7 +417,7 @@ $ARGUMENTS
 - **20_process.md** 的流程步驟 → **70_nfr.md** 的回應時間需求
 - **30_risk_control.md** 的 KRI → **70_nfr.md** 的監控指標
 - **40_infosec.md** 的資安控制 → **70_nfr.md** 的安全性 NFR
-- **50_compliance.md** 的法遵要求 → **70_nfr.md** 的合規性 NFR
+- **60_law.md** 的法遵要求 → **70_nfr.md** 的合規性 NFR
 - **60_audit.md** 的稽核需求 → **70_nfr.md** 的日誌效能需求
 
 ## 特殊模式

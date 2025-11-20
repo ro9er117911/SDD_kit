@@ -34,9 +34,9 @@ $ARGUMENTS
 1. **檢查專案環境**：
    - 執行 `git rev-parse --show-toplevel` 取得 repo root
    - 確認是否已有相關文件：
-     - `specs/meta/00_meta.md`（專案元資料）
-     - `specs/business/10_business.md`（業務目標）
-   - 設定 PROCESS_DIR = `$REPO_ROOT/specs/process`
+     - `project/meta/00_meta.md`（專案元資料）
+     - `project/business/10_business.md`（業務目標）
+   - 設定 PROCESS_DIR = `$REPO_ROOT/project/process`
 
 2. **載入上下文**：
    - 若 10_business.md 存在：
@@ -314,11 +314,11 @@ graph TD
 
 1. **建立目錄**：
    ```bash
-   mkdir -p $REPO_ROOT/specs/process
+   mkdir -p $REPO_ROOT/project/process
    ```
 
 2. **寫入文件**：
-   - 路徑：`$REPO_ROOT/specs/process/20_process.md`
+   - 路徑：`$REPO_ROOT/project/process/20_process.md`
    - 若為 `merge` 模式：保留 As-Is，更新 To-Be
 
 3. **產生記錄**：
@@ -337,7 +337,7 @@ graph TD
 
 選項 B：補充其他 Bank Profile 文件
   → `/speckit.infosec` - 資安需求 (40_infosec.md)
-  → `/speckit.compliance` - 法遵需求 (50_compliance.md)
+  → `/speckit.compliance` - 法遵需求 (60_law.md)
 
 選項 C：直接進入實作規劃
   → 執行 `/speckit.plan --from-bank-profile`
@@ -350,7 +350,7 @@ graph TD
 ```
 ✅ As-Is / To-Be 流程文件已生成
 
-📄 檔案路徑: $REPO_ROOT/specs/process/20_process.md
+📄 檔案路徑: $REPO_ROOT/project/process/20_process.md
 
 📊 內容摘要:
   ✓ As-Is 流程: [N] 個步驟
@@ -404,7 +404,7 @@ graph TD
 
 - **20_process.md** 定義業務流程
 - **40_infosec.md** 定義流程中的資安控制點
-- **50_compliance.md** 定義流程中的法遵要求
+- **60_law.md** 定義流程中的法遵要求
 - **60_audit.md** 定義流程中的稽核追蹤點
 
 ## 特殊模式
