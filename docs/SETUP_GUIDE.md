@@ -18,7 +18,7 @@
 
 ### 選擇性軟體（根據AI助手選擇）
 
-- **Claude Desktop** (如果使用 Claude)
+- **Claude** (如果使用 Claude cli)
 - **GitHub Copilot** (如果使用 VS Code)
   - VS Code擴充套件：GitHub Copilot + GitHub Copilot Chat
 
@@ -63,13 +63,13 @@ cat ~/.ssh/id_ed25519.pub
 
 ```bash
 # 使用 SSH（推薦）
-git clone git@github.com:YOUR_ORG/SDD_MVP_KIT.git
+git clone git@github.com:YOUR_ORG/SDD_KIT.git
 
 # 或使用 HTTPS
-git clone https://github.com/YOUR_ORG/SDD_MVP_KIT.git
+git clone https://github.com/YOUR_ORG/SDD_KIT.git
 
 # 進入專案目錄
-cd SDD_MVP_KIT
+cd SDD_KIT
 
 # 確認腳本執行權限
 chmod +x .specify/scripts/bash/*.sh
@@ -165,9 +165,9 @@ get_project_paths
 @agent project.context
 ```
 
-### Step 3: 填寫 Bank Profile 文檔
+### Step 3: 填寫 Project 文檔
 
-依序執行 Bank Profile 各階段：
+依序執行 Project 各階段：
 
 ```bash
 # Claude 方式
@@ -231,10 +231,10 @@ ls -la project/
 ### Q: 專案與功能的差別？
 
 A:
-- **專案** (`project/###-NAME/`): Bank Profile 文檔，專案層級需求分析
+- **專案** (`project/###-NAME/`): Project 文檔，專案層級需求分析
 - **功能** (`specs/###-feature/`): SDD 功能規格，IT開發階段
 
-**流程**：先建立專案 → 完成 Bank Profile → 提取專案約束 → 建立功能 → SDD 開發
+**流程**：先建立專案 → 完成 Project → 提取專案約束 → 建立功能 → SDD 開發
 
 ### Q: 如何匯出 PPTX/DOCX？
 
@@ -273,9 +273,9 @@ chmod +x .specify/scripts/bash/*.sh
 
 ## 下一步
 
-1. **完成第一個專案**：依照 Bank Profile 流程完成所有階段
+1. **完成第一個專案**：依照 Project 流程完成所有階段
 2. **閱讀架構文檔**：[ARCHITECTURE.md](ARCHITECTURE.md) 了解系統設計
-3. **查看範例**：`bank-profile/` 目錄有完整的範例專案
+3. **查看範例**：`project/` 目錄有完整的範例專案
 4. **進入 SDD 開發**：執行 `/speckit.constitution` 後開始功能開發
 
 ## 支援
