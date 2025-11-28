@@ -1,10 +1,10 @@
-# 架構說明 - SDD MVP Kit
+# 架構說明 - SDD Kit
 
-本文檔詳細說明 SDD MVP Kit 的系統架構、設計理念和實作細節。
+本文檔詳細說明 SDD Kit 的系統架構、設計理念和實作細節。
 
 ## 系統概覽
 
-SDD MVP Kit 是一個雙層架構的規格管理系統：
+SDD Kit 是一個雙層架構的規格管理系統：
 
 ```mermaid
 graph TB
@@ -70,7 +70,7 @@ flowchart LR
 
 ### 2. Project 新增架構（專案導向）
 
-**目的**：專案層級的 Bank Profile 文檔管理
+**目的**：專案層級的 Project 文檔管理
 
 **目錄結構**：
 ```
@@ -246,7 +246,7 @@ create-new-project.sh [--json] [--project-name <NAME>] [--number N] <description
 
 ## 模板系統
 
-### Bank Profile 模板（15 個）
+### Project 模板（15 個）
 
 ```
 .specify/templates/
@@ -538,7 +538,7 @@ graph LR
 
 ## 擴展性
 
-### 新增Bank Profile階段
+### 新增Project階段
 
 1. 在 `.specify/templates/` 新增模板（如 `95_performance-template.md`）
 2. 在 `.claude/commands/` 新增命令（如 `speckit.performance.md`）
