@@ -1,7 +1,7 @@
 # SDD Kit - Specification-Driven Development 工具包
 
 **將自然語言需求轉換為可執行的技術規格** - AI 驅動的規格自動化工具
-- **[SETUP_GUIDE.md](SETUP_GUIDE.md)**: 環境設定與第一個專案
+- **環境設定與第一個專案**: [SETUP_GUIDE.md](SETUP_GUIDE.md)
 - **架構說明**：[ARCHITECTURE.md](ARCHITECTURE.md)
 
 [![版本](https://img.shields.io/badge/version-2.0.0-blue.svg)](CHANGELOG.md)
