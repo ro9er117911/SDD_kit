@@ -1,8 +1,8 @@
-description = "審核 Bank Profile (00-70) 完整性與邏輯一致性,生成專案總結文件,為憲法建立準備輸入。"
+description = "審核 Bank Profile (00-90) 完整性與邏輯一致性,生成專案總結文件,為憲法建立準備輸入。"
 
 prompt = """
 ---
-description: 審核 Bank Profile (00-70) 完整性與邏輯一致性,生成專案總結文件,為憲法建立準備輸入。
+description: 審核 Bank Profile (00-90) 完整性與邏輯一致性,生成專案總結文件,為憲法建立準備輸入。
 ---
 
 ## 使用者輸入
@@ -13,12 +13,12 @@ $ARGUMENTS
 
 ## 流程總覽
 
-此命令用於**審核專案層級 Bank Profile 文件的完整性與邏輯一致性**,並產出專案總結文件。這是從 Bank Profile (00-70) 過渡到憲法建立與功能開發的關鍵步驟。
+此命令用於**審核專案層級 Bank Profile 文件的完整性與邏輯一致性**,並產出專案總結文件。這是從 Bank Profile (00-90) 過渡到憲法建立與功能開發的關鍵步驟。
 
 ## 目標定位
 
 **/speckit.review 關注**:
-- **COMPLETENESS**: Bank Profile (00-70) 是否完整 (必要文件是否存在)
+- **COMPLETENESS**: Bank Profile (00-90) 是否完整 (必要文件是否存在)
 - **CONSISTENCY**: 文件間的邏輯一致性 (依賴關係、引用正確性)
 - **COHERENCE**: 專案整體邏輯是否合理 (目標、風險、控制的連貫性)
 - **SYNTHESIS**: 產出專案總結文件 (為 constitution 準備輸入)
@@ -49,17 +49,20 @@ $ARGUMENTS
 |------|--------|------------|
 | 00_meta.md | 必須 | 缺少專案背景與利害關係人定義 |
 | 10_business.md | 必須 | 缺少業務目標與使用者故事 |
-| 20_process.md | 必須 | 缺少流程設計基礎 |
+| 20_system_flow.md | 必須 | 缺少流程設計基礎 |
+| 30_network_arch.md | 必須 | 缺少流程設計基礎 |
+| 40_hardware_arch.md | 必須 | 缺少流程設計基礎 |
+| 50_software_arch.md | 必須 | 缺少流程設計基礎 |
 
 **檢查建議文件** (P1 - 強烈建議):
 
 | 檔案 | 建議性 | 若缺少的影響 |
 |------|--------|------------|
-| 30_risk_control.md | 強烈建議 | 缺少風險管理框架 |
-| 40_infosec.md | 強烈建議 | 缺少資安需求定義 |
+
 | 60_law.md | 建議 | 可能不符合法遵要求 |
-| 60_audit.md | 建議 | 缺少稽核追蹤需求 |
-| 70_nfr.md | 建議 | 缺少非功能需求定義 |
+| 70_infosec.md | 建議 | 缺少稽核追蹤需求 |
+| 80_nfr.md | 建議 | 缺少非功能需求定義 |
+| 90_audit.md | 建議 | 缺少稽核追蹤需求 |
 
 **處理方式**:
 - **P0 缺少** → ⛔ 阻擋,列出缺少檔案,建議先執行對應命令
@@ -75,16 +78,22 @@ $ARGUMENTS
 ```mermaid
 graph TD
     A[00_meta.md] --> B[10_business.md]
-    B --> C[20_process.md]
-    C --> D[30_risk_control.md]
-    D --> E[40_infosec.md]
-    E --> F[60_law.md]
-    F --> G[60_audit.md]
+    B --> C[20_system_flow.md]
+    C --> D[30_network_arch.md]
+    D --> E[40_hardware_arch.md]
+    E --> F[50_software_arch.md]
+    F --> G[60_law.md]
+    G --> H[60_audit.md]
     D --> G
     E --> G
     F --> G
     subgraph "NFR 整合所有前置"
     G --> H[70_nfr.md]
+    E --> H
+    F --> H
+    end
+    subgraph "Infosec 整合所有前置"
+    G --> H[70_infosec.md]
     E --> H
     F --> H
     end
@@ -97,19 +106,19 @@ graph TD
    - [ ] 團隊成員在角色權限矩陣中都有定義 (40_infosec.md)
    - [ ] 監理要求在法遵文件中有對應 (60_law.md)
 
-2. **10_business.md → 20_process.md**:
+2. **10_business.md → 20_system_flow.md**:
    - [ ] 使用者故事 (10) 對應到流程步驟 (20)
    - [ ] KPI (10) 有對應的流程效率指標 (20)
 
-3. **20_process.md → 30_risk_control.md**:
+3. **20_system_flow.md → 30_network_arch.md**:
    - [ ] 流程例外情境 (20) 對應到風險 (30)
    - [ ] 關鍵流程步驟有對應的控制措施 (30)
 
-4. **30_risk_control.md → 40_infosec.md**:
+4. **30_network_arch.md → 40_hardware_arch.md**:
    - [ ] 資安風險 (30) 有對應的資安控制 (40)
    - [ ] KRI 監控指標 (30) 有對應的監控機制 (40 日誌)
 
-5. **40_infosec.md → 60_law.md**:
+5. **40_hardware_arch.md → 50_software_arch.md**:
    - [ ] 資安控制 (40) 符合法遵要求 (50)
    - [ ] 資料分級 (40) 符合個資法要求 (50)
 
@@ -290,12 +299,14 @@ graph TD
 ### Bank Profile 文件清單
 - [x] 00_meta.md
 - [x] 10_business.md
-- [x] 20_process.md
-- [x] 30_risk_control.md
-- [x] 40_infosec.md
+- [x] 20_system_flow.md
+- [x] 30_network_arch.md
+- [x] 40_hardware_arch.md
+- [x] 50_software_arch.md
 - [ ] 60_law.md (缺少)
-- [x] 60_audit.md
-- [x] 70_nfr.md
+- [ ] 70_infosec.md (缺少)
+- [x] 80_nfr.md
+- [x] 90_audit.md
 
 ### 審核記錄
 - 審核命令: `/speckit.review`
@@ -369,7 +380,7 @@ graph TD
 ## 與其他命令的整合
 
 ### 輸入
-- `bank-profile/*.md` (00-70)
+- `bank-profile/*.md` (00-90)
 
 ### 輸出
 - `PROJECT_SUMMARY.md` (專案總結)

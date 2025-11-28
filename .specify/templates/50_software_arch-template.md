@@ -17,25 +17,26 @@
 ### 整體架構
 
 ```mermaid
-architecture-beta
-    group onprem(server)[OnPrem]
-    group cloud(cloud)[AzureCloud]
+graph TB
+    subgraph OnPrem["OnPrem"]
+        WebUI["Web UI"]
+        API["API Layer (.NET MVC)"]
+        DB["MSSQL Server"]
+    end
 
-    service web(internet)[Web_UI] in onprem
-    service api(server)[API_Layer_NET_MVC] in onprem
-    service db(database)[MSSQL_Server] in onprem
-    
-    service function(server)[Azure_Function_Python] in cloud
-    service aoai(server)[AOAI_Gateway] in cloud
-    service gpt(server)[GPT4_Model] in cloud
-    service storage(disk)[Blob_Storage] in cloud
+    subgraph Cloud["AzureCloud"]
+        Function["Azure Function (Python)"]
+        AOAI["AOAI Gateway"]
+        GPT["GPT4 Model"]
+        Storage["Blob Storage"]
+    end
 
-    web:R --> L:api
-    api:R --> L:db
-    api:T --> B:function
-    function:R --> L:aoai
-    aoai:R --> L:gpt
-    function:B --> T:storage
+    WebUI -->|Request| API
+    API -->|Read/Write| DB
+    API -->|Call| Function
+    Function -->|Call| AOAI
+    AOAI -->|Call| GPT
+    Function -->|Read/Write| Storage
 ```
 
 **架構層級**：
@@ -205,15 +206,15 @@ erDiagram
 ```mermaid
 flowchart TB
     subgraph CI["CI 持續整合"]
-        Repos[Git Repository]
-        Pipeline[Build Pipeline]
-        LinuxAgent[Linux Agent]
+        Repos["Git Repository"]
+        Pipeline["Build Pipeline"]
+        LinuxAgent["Linux Agent"]
         
-        RedHat[Red Hat Registry]
-        Quay[Quay Registry]
-        AIBastion[AI Bastion Server]
+        RedHat["Red Hat Registry"]
+        Quay["Quay Registry"]
+        AIBastion["AI Bastion Server"]
         
-        ACR[Azure Container Registry]
+        ACR["Azure Container Registry"]
         
         Repos --> Pipeline
         Pipeline --> LinuxAgent
@@ -226,14 +227,14 @@ flowchart TB
     end
     
     subgraph CD["CD 持續部署"]
-        WinAgent[Windows Agent]
-        AzFunc[Azure Functions]
+        WinAgent["Windows Agent"]
+        AzFunc["Azure Functions"]
         
         ACR <-->|Pull/Push Image| AzFunc
         WinAgent -->|Deploy Config| AzFunc
     end
     
-    CI -..|CD
+    CI -..|CD| CD
     
     style CI fill:#e3f2fd
     style CD fill:#f3e5f5

@@ -1,8 +1,8 @@
-description = "從使用者描述產生 As-Is / To-Be 流程文件（20_process.md），包含流程圖、例外處理、邊界情況、資料流動與整合點。"
+description = "從使用者描述產生 As-Is / To-Be 流程文件（20_system_flow-template.md,30_network_arch-template.md, 40_hardware_arch-template.md, 50_software_arch-template.md），包含流程圖、例外處理、邊界情況、資料流動與整合點。"
 
 prompt = """
 ---
-description: 從使用者描述產生 As-Is / To-Be 流程文件（20_process.md），包含流程圖、例外處理、邊界情況、資料流動與整合點。
+description: 從使用者描述產生 As-Is / To-Be 流程文件（20_system_flow-template.md,30_network_arch-template.md, 40_hardware_arch-template.md, 50_software_arch-template.md），包含流程圖、例外處理、邊界情況、資料流動與整合點。
 ---
 
 ## 使用者輸入
@@ -19,7 +19,7 @@ $ARGUMENTS
 
 ## 目標定位
 
-**20_process.md 關注**：
+**20_system_flow-template.md,30_network_arch-template.md, 40_hardware_arch-template.md, 50_software_arch-template.md 關注**：
 - AS-IS：當前流程如何運作（步驟、角色、痛點）
 - TO-BE：目標流程如何改善（自動化、優化、整合）
 - HOW：資料如何流動、角色如何協作
@@ -51,8 +51,8 @@ $ARGUMENTS
      - 讀取利害關係人（推導 RACI）
 
 3. **檢查既有文件**：
-   - 若 `$PROCESS_DIR/20_process.md` 已存在，詢問：
-     - 「發現既有 20_process.md，是否要更新？(yes/no/merge)」
+   - 若 `$PROCESS_DIR/20_system_flow-template.md,30_network_arch-template.md, 40_hardware_arch-template.md, 50_software_arch-template.md` 已存在，詢問：
+     - 「發現既有 20_system_flow-template.md,30_network_arch-template.md, 40_hardware_arch-template.md, 50_software_arch-template.md，是否要更新？(yes/no/merge)」
      - `yes`: 完全覆寫
      - `no`: 中止執行
      - `merge`: 保留 As-Is，更新 To-Be 流程
@@ -271,7 +271,7 @@ graph TD
 
 ### 6. 品質檢查
 
-生成 20_process.md 前執行以下檢查：
+生成 20_system_flow-template.md,30_network_arch-template.md, 40_hardware_arch-template.md, 50_software_arch-template.md 前執行以下檢查：
 
 **完整性檢查**：
 - [ ] As-Is 流程至少 3 個步驟
@@ -298,7 +298,7 @@ graph TD
 
 若檢查未通過，回報並詢問是否補充。
 
-### 7. 生成 20_process.md
+### 7. 生成 20_system_flow-template.md,30_network_arch-template.md, 40_hardware_arch-template.md, 50_software_arch-template.md
 
 1. **載入模板**：
    - 讀取 `.specify/templates/20_process-template.md`
@@ -321,7 +321,7 @@ graph TD
    ```
 
 2. **寫入文件**：
-   - 路徑：`$REPO_ROOT/project/process/20_process.md`
+   - 路徑：`$REPO_ROOT/project/process/20_system_flow-template.md,30_network_arch-template.md, 40_hardware_arch-template.md, 50_software_arch-template.md`
    - 若為 `merge` 模式：保留 As-Is，更新 To-Be
 
 3. **產生記錄**：
@@ -332,11 +332,11 @@ graph TD
 完成後提示：
 
 ```
-💡 20_process.md 已生成，下一步建議：
+💡 20_system_flow-template.md,30_network_arch-template.md, 40_hardware_arch-template.md, 50_software_arch-template.md 已生成，下一步建議：
 
 選項 A：直接產生技術規格
   → 執行 `/speckit.specify --from-business-and-process`
-  → 系統將整合 10_business.md 和 20_process.md 產生 spec.md
+  → 系統將整合 10_business.md 和 20_system_flow-template.md,30_network_arch-template.md, 40_hardware_arch-template.md, 50_software_arch-template.md 產生 spec.md
 
 選項 B：補充其他 Bank Profile 文件
   → `/speckit.infosec` - 資安需求 (40_infosec.md)
@@ -353,7 +353,7 @@ graph TD
 ```
 ✅ As-Is / To-Be 流程文件已生成
 
-📄 檔案路徑: $REPO_ROOT/project/process/20_process.md
+📄 檔案路徑: $REPO_ROOT/project/process/20_system_flow-template.md,30_network_arch-template.md, 40_hardware_arch-template.md, 50_software_arch-template.md
 
 📊 內容摘要:
   ✓ As-Is 流程: [N] 個步驟
@@ -391,13 +391,13 @@ graph TD
 ### 與 /speckit.business 的關係
 
 - **10_business.md 定義「做什麼」**（功能、使用者故事）
-- **20_process.md 定義「怎麼流動」**（流程、協作）
+- **20_system_flow-template.md,30_network_arch-template.md, 40_hardware_arch-template.md, 50_software_arch-template.md 定義「怎麼流動」**（流程、協作）
 - 使用者故事 → 對應流程步驟
 - 業務痛點 → 對應流程瓶頸
 
 ### 與 /speckit.specify 的關係
 
-- **20_process.md 為流程層需求**
+- **20_system_flow-template.md,30_network_arch-template.md, 40_hardware_arch-template.md, 50_software_arch-template.md 為流程層需求**
 - **spec.md 為功能層規格**
 - 流程步驟 → 功能需求
 - 例外處理 → 邊界情況
@@ -405,7 +405,7 @@ graph TD
 
 ### 與其他 Bank Profile 文件的關係
 
-- **20_process.md** 定義業務流程
+- **20_system_flow-template.md,30_network_arch-template.md, 40_hardware_arch-template.md, 50_software_arch-template.md** 定義業務流程
 - **40_infosec.md** 定義流程中的資安控制點
 - **60_law.md** 定義流程中的法遵要求
 - **60_audit.md** 定義流程中的稽核追蹤點
@@ -427,13 +427,13 @@ graph TD
 
 ### 更新模式 (--update)
 
-若已存在 20_process.md：
+若已存在 20_system_flow-template.md,30_network_arch-template.md, 40_hardware_arch-template.md, 50_software_arch-template.md：
 - 詢問要更新哪部分（As-Is/To-Be/例外/整合）
 - 保留其他部分不變
 
 ## 品質標準
 
-產出的 20_process.md 必須符合：
+產出的 20_system_flow-template.md,30_network_arch-template.md, 40_hardware_arch-template.md, 50_software_arch-template.md 必須符合：
 - **可執行性**: 流程步驟清晰可執行
 - **可視化**: 至少 1 個 Mermaid 流程圖
 - **可追溯性**: 與 10_business.md 對齊

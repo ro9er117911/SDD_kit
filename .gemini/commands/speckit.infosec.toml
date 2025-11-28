@@ -1,8 +1,8 @@
-description = "從專案上下文產生資安需求與權限矩陣文件（40_infosec.md），包含資料分級、存取控制、身分驗證、日誌稽核與合規要求。"
+description = "從專案上下文產生資安需求與權限矩陣文件（70_infosec.md），包含資料分級、存取控制、身分驗證、日誌稽核與合規要求。"
 
 prompt = """
 ---
-description: 從專案上下文產生資安需求與權限矩陣文件（40_infosec.md），包含資料分級、存取控制、身分驗證、日誌稽核與合規要求。
+description: 從專案上下文產生資安需求與權限矩陣文件（70_infosec.md），包含資料分級、存取控制、身分驗證、日誌稽核與合規要求。
 ---
 
 ## 使用者輸入
@@ -17,7 +17,7 @@ $ARGUMENTS
 
 ## 目標定位
 
-**40_infosec.md 關注**：
+**70_infosec.md 關注**：
 - WHO-CAN-ACCESS：誰可以存取什麼（角色、權限矩陣）
 - HOW-TO-PROTECT：如何保護資料（加密、遮罩、隔離）
 - WHAT-TO-LOG：需記錄什麼操作（稽核追蹤）
@@ -286,7 +286,7 @@ $ARGUMENTS
 - [ ] 特權操作有額外控制
 - [ ] 異常偵測機制完整
 
-### 7. 生成 40_infosec.md
+### 7. 生成 70_infosec.md
 
 1. 載入模板並填寫所有自動生成內容
 2. 插入權限矩陣、資料分級表
@@ -298,7 +298,7 @@ $ARGUMENTS
 ```
 ✅ 資安需求與權限矩陣文件已生成
 
-📄 檔案路徑: project/infosec/40_infosec.md
+📄 檔案路徑: project/infosec/70_infosec.md
 
 📊 資安摘要:
   ✓ 資料分級: [N] 種資料類型
@@ -332,9 +332,9 @@ $ARGUMENTS
 
 ## 與其他命令的整合
 
-- **10_business.md** 的角色 → **40_infosec.md** 的權限矩陣
-- **20_process.md** 的資料流 → **40_infosec.md** 的資料分級與加密點
-- **30_risk_control.md** 的資安風險 → **40_infosec.md** 的技術控制措施
+- **10_business.md** 的角色 → **70_infosec.md** 的權限矩陣
+- **20_process.md** 的資料流 → **70_infosec.md** 的資料分級與加密點
+- **30_risk_control.md** 的資安風險 → **70_infosec.md** 的技術控制措施
 
 ## 特殊模式
 

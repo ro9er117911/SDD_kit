@@ -1,44 +1,80 @@
-# Generated output files (build artifacts)
-output/
-*.docx
-*.pdf
-*.pptx
-
-# Node modules
+# Dependencies
 node_modules/
+.pnpm-store/
 
-# Python cache
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-*.so
-*.egg
-*.egg-info/
-dist/
-build/
-
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
-
-# Office temporary files
-~$*
+# Build outputs and temporary files
 *.tmp
+.temp/*
+!.temp/.gitkeep
+.cache/
 
-# IDE
-.vscode/
-.idea/
+# System files
+.DS_Store
+Thumbs.db
 *.swp
 *.swo
 *~
 
-# Logs (optional - remove # to track work-logs)
-# work-logs/
+# IDE and editor files (keep VS Code settings for Copilot)
+# .vscode/  # 保留以便分享 Copilot 配置
+.idea/
+*.sublime-*
 
-# Environment
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files (敏感資料)
 .env
 .env.local
 .env.*.local
+secrets/
+*.key
+*.pem
+
+# Python (如果有生成腳本)
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.so
+.venv/
+venv/
+ENV/
+
+# Testing
+coverage/
+.nyc_output/
+
+# Gemini/Claude 私人對話紀錄（可選）
+# .gemini/antigravity/brain/  # 取消註解以排除
+# .claude/
+
+# === 實例資料（使用 init.sh 後產生）===
+# 排除所有實際專案資料，但保留目錄結構
+project/*
+!project/.gitkeep
+specs/*
+!specs/.gitkeep
+
+# 範例與測試資料（kit 使用者不需要）
+examples/
+draft/
+test/
+workspace/
+work-logs/
+bank-profile/
+ForGithubCopilot_original/
+
+# 專案產出
+project/**/export/*.pptx
+project/**/export/*.docx
+*.pdf
+
+# Git
+*.orig
+
+# SDD Kit 配置（使用者專案）
+.sdd-kit-config

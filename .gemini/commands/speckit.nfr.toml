@@ -1,8 +1,8 @@
-description = "從專案上下文產生非功能需求文件（70_nfr.md），包含效能、可用性、可靠性、維運、擴展性、安全性與合規性需求。"
+description = "從專案上下文產生非功能需求文件（80_nfr.md），包含效能、可用性、可靠性、維運、擴展性、安全性與合規性需求。"
 
 prompt = """
 ---
-description: 從專案上下文產生非功能需求文件（70_nfr.md），包含效能、可用性、可靠性、維運、擴展性、安全性與合規性需求。
+description: 從專案上下文產生非功能需求文件（80_nfr.md），包含效能、可用性、可靠性、維運、擴展性、安全性與合規性需求。
 ---
 
 ## 使用者輸入
@@ -17,7 +17,7 @@ $ARGUMENTS
 
 ## 目標定位
 
-**70_nfr.md 關注**：
+**80_nfr.md 關注**：
 - HOW-FAST：系統要多快（效能、回應時間）
 - HOW-AVAILABLE：系統要多可靠（可用性、SLA）
 - HOW-RECOVER：災難如何復原（RTO/RPO）
@@ -359,7 +359,7 @@ $ARGUMENTS
 - [ ] 效能需求有對應的測試場景
 - [ ] 可用性目標可透過監控驗證
 
-### 8. 生成 70_nfr.md
+### 8. 生成 80_nfr.md
 
 1. 載入模板並填寫所有自動生成內容
 2. 插入效能需求、可用性需求、可靠性需求
@@ -373,7 +373,7 @@ $ARGUMENTS
 ```
 ✅ 非功能需求文件已生成
 
-📄 檔案路徑: project/nfr/70_nfr.md
+📄 檔案路徑: project/nfr/80_nfr.md
 
 📊 NFR 摘要:
   ✓ 總計 NFR: [N] 個
@@ -416,12 +416,12 @@ $ARGUMENTS
 
 ## 與其他命令的整合
 
-- **10_business.md** 的業務目標 → **70_nfr.md** 的效能期望
-- **20_process.md** 的流程步驟 → **70_nfr.md** 的回應時間需求
-- **30_risk_control.md** 的 KRI → **70_nfr.md** 的監控指標
-- **40_infosec.md** 的資安控制 → **70_nfr.md** 的安全性 NFR
-- **60_law.md** 的法遵要求 → **70_nfr.md** 的合規性 NFR
-- **60_audit.md** 的稽核需求 → **70_nfr.md** 的日誌效能需求
+- **10_business.md** 的業務目標 → **80_nfr.md** 的效能期望
+- **20_process.md** 的流程步驟 → **80_nfr.md** 的回應時間需求
+- **30_risk_control.md** 的 KRI → **80_nfr.md** 的監控指標
+- **40_infosec.md** 的資安控制 → **80_nfr.md** 的安全性 NFR
+- **60_law.md** 的法遵要求 → **80_nfr.md** 的合規性 NFR
+- **60_audit.md** 的稽核需求 → **80_nfr.md** 的日誌效能需求
 
 ## 特殊模式
 

@@ -25,8 +25,8 @@
 ```mermaid
 graph TB
     subgraph Internet["🌐 Internet 網段"]
-        ExtAPI[外部資料 API]
-        ExtData[第三方資料源]
+        ExtAPI["外部資料 API"]
+        ExtData["第三方資料源"]
     end
     
     subgraph DMZ["🔒 DMZ 網段"]
@@ -34,8 +34,8 @@ graph TB
     end
     
     subgraph Internal["🏢 內部環境網段"]
-        WebUI[業務平台 Web UI]
-        AppServer[應用伺服器]
+        WebUI["業務平台 Web UI"]
+        AppServer["應用伺服器"]
         InternalDB["平台資料庫<br>PROD: [內部IP]"]
         
         WebUI --> AppServer
@@ -44,16 +44,16 @@ graph TB
     
     subgraph DeID["🔐 去識別化網段"]
         TrainData["訓練資料<br>去識別化DB"]
-        DataProc[資料處理服務]
+        DataProc["資料處理服務"]
         
         DataProc --> TrainData
     end
     
     subgraph Cloud["☁️ 雲端網段 (Azure)"]
         ETLFunc["Azure Function<br>資料串接/ETL"]
-        AOAIGateway[AOAI Gateway]
+        AOAIGateway["AOAI Gateway"]
         GPT["OpenAI GPT-4<br>模型服務"]
-        CacheDB[快取資料庫]
+        CacheDB["快取資料庫"]
         
         ETLFunc <--> AOAIGateway
         AOAIGateway <--> GPT
@@ -109,13 +109,13 @@ graph TB
 ### 測試環境 (SIT/UAT) 系統流程
 
 ```mermaid
-    
+graph TB
     subgraph CloudTest["雲端環境 (Azure SIT)"]
-        ExtAPITest[外部 API SIT]
-        ProxyTest[Proxy SIT]
-        FunctionTest[Function SIT]
-        GatewayTest[Gateway SIT]
-        OpenAITest[GPT-4 測試配額]
+        ExtAPITest["外部 API SIT"]
+        ProxyTest["Proxy SIT"]
+        FunctionTest["Function SIT"]
+        GatewayTest["Gateway SIT"]
+        OpenAITest["GPT-4 測試配額"]
         
         ExtAPITest --> ProxyTest --> FunctionTest
         FunctionTest <--> GatewayTest <--> OpenAITest

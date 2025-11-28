@@ -42,18 +42,18 @@
 
 ```mermaid
 flowchart TD
-    Start([使用者開始]) --> Login[登入系統]
-    Login --> SelectCase[選擇個案]
-    SelectCase --> ViewData[查看個案資料]
-    ViewData --> TriggerAI[觸發 AI 摘要生成]
-    TriggerAI --> AIProcess[系統呼叫 AI 處理]
-    AIProcess --> ShowResult[顯示 AI 生成摘要]
-    ShowResult --> UserReview{使用者審閱}
-    UserReview -->|需修改| EditSummary[編輯摘要內容]
-    UserReview -->|滿意| Submit[提交審核]
+    Start(["使用者開始"]) --> Login["登入系統"]
+    Login --> SelectCase["選擇個案"]
+    SelectCase --> ViewData["查看個案資料"]
+    ViewData --> TriggerAI["觸發 AI 摘要生成"]
+    TriggerAI --> AIProcess["系統呼叫 AI 處理"]
+    AIProcess --> ShowResult["顯示 AI 生成摘要"]
+    ShowResult --> UserReview{"使用者審閱"}
+    UserReview -->|需修改| EditSummary["編輯摘要內容"]
+    UserReview -->|滿意| Submit["提交審核"]
     EditSummary --> Submit
-    Submit --> Notify[通知審核者]
-    Notify --> End([流程結束])
+    Submit --> Notify["通知審核者"]
+    Notify --> End(["流程結束"])
     
     style Start fill:#90ee90
     style End fill:#90ee90
@@ -78,16 +78,16 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    Start([測試人員開始]) --> LoginTest[登入測試系統]
-    LoginTest --> SelectTestCase[選擇測試個案]
+    Start(["測試人員開始"]) --> LoginTest["登入測試系統"]
+    LoginTest --> SelectTestCase["選擇測試個案"]
     SelectTestCase --> ViewTestData["查看測試資料<br>已去識別化"]
     ViewTestData --> TriggerAITest["觸發 AI 摘要<br>測試模式"]
     TriggerAITest --> AIProcessTest["系統呼叫 AI<br>SIT 環境"]
-    AIProcessTest --> ShowResultTest[顯示測試結果]
-    ShowResultTest --> VerifyTest{驗證功能}
-    VerifyTest -->|功能正常| LogPass[記錄測試通過]
-    VerifyTest -->|發現問題| LogIssue[記錄問題]
-    LogPass --> End([測試結束])
+    AIProcessTest --> ShowResultTest["顯示測試結果"]
+    ShowResultTest --> VerifyTest{"驗證功能"}
+    VerifyTest -->|功能正常| LogPass["記錄測試通過"]
+    VerifyTest -->|發現問題| LogIssue["記錄問題"]
+    LogPass --> End(["測試結束"])
     LogIssue --> End
     
     style Start fill:#e8f5e9
@@ -410,15 +410,15 @@ P3 故事通常是優化、便利性功能，或可延後的需求
 
 ```mermaid
 journey
-    title [旅程標題]
+    title ["旅程標題"]
     section 準備階段
-      [步驟1]: 3: [角色]
-      [步驟2]: 4: [角色]
+      ["步驟1"]: 3: ["角色"]
+      ["步驟2"]: 4: ["角色"]
     section 執行階段
-      [步驟3]: 5: [角色]
-      [步驟4]: 4: [角色]
+      ["步驟3"]: 5: ["角色"]
+      ["步驟4"]: 4: ["角色"]
     section 完成階段
-      [步驟5]: 5: [角色]
+      ["步驟5"]: 5: ["角色"]
 ```
 
 **各步驟說明**:

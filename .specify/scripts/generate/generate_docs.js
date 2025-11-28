@@ -2,7 +2,9 @@ const fs = require('fs');
 const path = require('path');
 const { Document, Packer, Paragraph, TextRun, HeadingLevel, ImageRun } = require('docx');
 const PptxGenJS = require('pptxgenjs');
+const { parseForPptx } = require('./shared/markdown-parser');
 const MermaidRenderer = require('../utils/mermaid_renderer');
+const sizeOf = require('image-size');
 
 // Configuration
 const BANK_PROFILE_DIR = path.join(process.cwd(), 'bank-profile');
@@ -61,101 +63,6 @@ const DESIGN = {
         lineHeight: 0.35
     }
 };
-
-// Helper: Parse markdown formatting in text
-function parseMarkdownText(text) {
-    const parts = [];
-    let currentPos = 0;
-
-    // Regex patterns for markdown with priority (higher index = higher priority)
-    const patterns = [
-        { regex: /`(.+?)`/g, format: { fontFace: 'Courier New' }, priority: 5 },
-        { regex: /_(.+?)_/g, format: { italic: true }, priority: 2 },
-        { regex: /\*(.+?)\*/g, format: { italic: true }, priority: 3 },
-        { regex: /\*\*(.+?)\*\*/g, format: { bold: true }, priority: 4 },
-        { regex: /\*\*\*(.+?)\*\*\*/g, format: { bold: true, italic: true }, priority: 5 }
-    ];
-
-    // Find all matches across all patterns
-    const allMatches = [];
-    patterns.forEach(({ regex, format, priority }) => {
-        let match;
-        // Create a fresh regex for each pattern to reset lastIndex
-        const r = new RegExp(regex.source, regex.flags);
-        while ((match = r.exec(text)) !== null) {
-            allMatches.push({
-                start: match.index,
-                end: match.index + match[0].length,
-                innerText: match[1],
-                fullMatch: match[0],
-                format: format,
-                priority: priority,
-                length: match[0].length
-            });
-        }
-    });
-
-    // If no matches, return plain text
-    if (allMatches.length === 0) {
-        return [{ text: text, options: {} }];
-    }
-
-    // Sort by start position, then by priority (higher first), then by length (longer first)
-    allMatches.sort((a, b) => {
-        if (a.start !== b.start) return a.start - b.start;
-        if (a.priority !== b.priority) return b.priority - a.priority;
-        return b.length - a.length;
-    });
-
-    // Filter out overlapping matches - keep highest priority, longest match
-    const matches = [];
-    const used = new Set();
-
-    for (const match of allMatches) {
-        let hasOverlap = false;
-        for (let i = match.start; i < match.end; i++) {
-            if (used.has(i)) {
-                hasOverlap = true;
-                break;
-            }
-        }
-
-        if (!hasOverlap) {
-            matches.push(match);
-            for (let i = match.start; i < match.end; i++) {
-                used.add(i);
-            }
-        }
-    }
-
-    // Sort final matches by position for building output
-    matches.sort((a, b) => a.start - b.start);
-
-    // Build parts array
-    matches.forEach(match => {
-        // Add plain text before match
-        if (currentPos < match.start) {
-            const plainText = text.substring(currentPos, match.start);
-            if (plainText) {
-                parts.push({ text: plainText, options: {} });
-            }
-        }
-
-        // Add formatted text
-        parts.push({ text: match.innerText, options: match.format });
-        currentPos = match.end;
-    });
-
-    // Add remaining plain text
-    if (currentPos < text.length) {
-        const remaining = text.substring(currentPos);
-        if (remaining) {
-            parts.push({ text: remaining, options: {} });
-        }
-    }
-
-    return parts.length > 0 ? parts : [{ text: text, options: {} }];
-}
 
 // Helper: Split content into pages
 function splitContentIntoPages(items, maxLines = DESIGN.layout.maxLinesPerSlide) {
@@ -336,7 +243,7 @@ function createContentSlide(pptx, fileName, sectionTitle, contentItems, pageNum 
 
         contentItems.forEach((item, index) => {
             // Parse markdown formatting
-            const textParts = parseMarkdownText(item);
+            const textParts = parseForPptx(item);
 
             // Add text with formatting
             slide.addText(textParts, {
@@ -371,6 +278,112 @@ function createContentSlide(pptx, fileName, sectionTitle, contentItems, pageNum 
     return slide;
 }
 
+// --- DOCX Helper Functions ---
+
+// Helper: Parse Markdown formatting for DOCX (returns TextRun array)
+function parseMarkdownForDocx(text) {
+    if (!text || text.trim().length === 0) {
+        return [new TextRun({ text: '' })];
+    }
+
+    const parts = [];
+    let currentPos = 0;
+
+    // Regex patterns for markdown (order matters: longer patterns first)
+    const patterns = [
+        { regex: /`(.+?)`/g, format: 'code' },
+        { regex: /\*\*\*(.+?)\*\*\*/g, format: 'bolditalic' },
+        { regex: /\*\*(.+?)\*\*/g, format: 'bold' },
+        { regex: /\*(.+?)\*/g, format: 'italic' },
+        { regex: /_(.+?)_/g, format: 'italic' }
+    ];
+
+    // Find all matches
+    const allMatches = [];
+    patterns.forEach(({ regex, format }) => {
+        let match;
+        const r = new RegExp(regex.source, regex.flags);
+        while ((match = r.exec(text)) !== null) {
+            allMatches.push({
+                start: match.index,
+                end: match.index + match[0].length,
+                innerText: match[1],
+                format: format,
+                length: match[0].length
+            });
+        }
+    });
+
+    // If no matches, return plain text
+    if (allMatches.length === 0) {
+        return [new TextRun({ text: text })];
+    }
+
+    // Sort by position and filter overlapping matches
+    allMatches.sort((a, b) => {
+        if (a.start !== b.start) return a.start - b.start;
+        return b.length - a.length; // Prefer longer matches
+    });
+
+    const matches = [];
+    const used = new Set();
+
+    for (const match of allMatches) {
+        let hasOverlap = false;
+        for (let i = match.start; i < match.end; i++) {
+            if (used.has(i)) {
+                hasOverlap = true;
+                break;
+            }
+        }
+
+        if (!hasOverlap) {
+            matches.push(match);
+            for (let i = match.start; i < match.end; i++) {
+                used.add(i);
+            }
+        }
+    }
+
+    // Sort final matches by position
+    matches.sort((a, b) => a.start - b.start);
+
+    // Build TextRun array
+    const textRuns = [];
+    matches.forEach(match => {
+        // Add plain text before match
+        if (currentPos < match.start) {
+            const plainText = text.substring(currentPos, match.start);
+            if (plainText) {
+                textRuns.push(new TextRun({ text: plainText }));
+            }
+        }
+
+        // Add formatted text
+        const options = { text: match.innerText };
+        if (match.format === 'bold') options.bold = true;
+        if (match.format === 'italic') options.italics = true;
+        if (match.format === 'bolditalic') {
+            options.bold = true;
+            options.italics = true;
+        }
+        if (match.format === 'code') options.font = 'Courier New';
+
+        textRuns.push(new TextRun(options));
+        currentPos = match.end;
+    });
+
+    // Add remaining plain text
+    if (currentPos < text.length) {
+        const remaining = text.substring(currentPos);
+        if (remaining) {
+            textRuns.push(new TextRun({ text: remaining }));
+        }
+    }
+
+    return textRuns.length > 0 ? textRuns : [new TextRun({ text: text })];
+}
+
 // --- DOCX Generation ---
 
 async function generateDocx() {
@@ -402,14 +415,31 @@ async function generateDocx() {
                 if (mermaidDiagrams[diagramKey]) {
                     try {
                         const imageBuffer = fs.readFileSync(mermaidDiagrams[diagramKey]);
+
+                        // FIXED: Dynamic image sizing based on aspect ratio
+                        const dimensions = sizeOf(mermaidDiagrams[diagramKey]);
+                        const aspectRatio = dimensions.width / dimensions.height;
+
+                        // DOCX page usable width is approximately 550 points (about 6 inches for A4)
+                        const maxWidth = 550;
+                        const maxHeight = 400;
+
+                        let width, height;
+                        if (aspectRatio > 1.5) {
+                            // Horizontal images: fit to width
+                            width = maxWidth;
+                            height = width / aspectRatio;
+                        } else {
+                            // Vertical or square images: fit to height
+                            height = maxHeight;
+                            width = height * aspectRatio;
+                        }
+
                         children.push(new Paragraph({
                             children: [
                                 new ImageRun({
                                     data: imageBuffer,
-                                    transformation: {
-                                        width: 600,
-                                        height: 400
-                                    }
+                                    transformation: { width, height }
                                 })
                             ]
                         }));
@@ -447,21 +477,31 @@ async function generateDocx() {
                     spacing: { before: 200, after: 100 }
                 }));
             } else if (line.startsWith('- ') || line.startsWith('* ')) {
+                // FIXED: Use parseMarkdownForDocx for proper formatting
+                const cleanText = line.replace(/^[-*]\s+/, '');
+                const textRuns = parseMarkdownForDocx(cleanText);
                 children.push(new Paragraph({
-                    text: line.replace(/^[-*] /, ''),
+                    children: textRuns,
                     bullet: { level: 0 }
                 }));
             } else if (/^\d+\.\s/.test(line)) {
+                // FIXED: Use parseMarkdownForDocx for proper formatting
+                const cleanText = line.replace(/^\d+\.\s/, '');
+                const textRuns = parseMarkdownForDocx(cleanText);
                 children.push(new Paragraph({
-                    text: line.replace(/^\d+\.\s/, ''),
+                    children: textRuns,
                     bullet: { level: 0 }
                 }));
             } else if (line.startsWith('|') && line.includes('---')) {
                 continue; // Skip table separators
             } else {
-                children.push(new Paragraph({
-                    children: [new TextRun({ text: line })]
-                }));
+                // FIXED: Use parseMarkdownForDocx for proper formatting
+                // Filter out long paragraphs (>150 chars) for medium version
+                if (line.length < 150 && line.trim().length > 0) {
+                    const textRuns = parseMarkdownForDocx(line);
+                    children.push(new Paragraph({ children: textRuns }));
+                }
+                // Paragraphs > 150 chars are automatically skipped
             }
         }
 
@@ -478,6 +518,33 @@ async function generateDocx() {
     const buffer = await Packer.toBuffer(doc);
     fs.writeFileSync(path.join(OUTPUT_DIR, 'Bank_Profile_Full.docx'), buffer);
     console.log('✓ DOCX generated: Bank_Profile_Full.docx');
+}
+
+// --- PPTX Helper Functions ---
+
+// Helper: Select key points from content items (intelligent selection)
+function selectKeyPoints(items, maxItems = 5) {
+    if (items.length <= maxItems) {
+        return items; // If already under limit, return all
+    }
+
+    // Priority strategy: Prefer items with subheadings (▸)
+    const withSubheading = items.filter(item => item.trim().startsWith('▸'));
+    const withoutSubheading = items.filter(item => !item.trim().startsWith('▸'));
+
+    let selected = [];
+
+    if (withSubheading.length >= maxItems) {
+        // If we have enough subheading items, use those
+        selected = withSubheading.slice(0, maxItems);
+    } else {
+        // Otherwise, include all subheading items and fill with regular bullet points
+        selected = [...withSubheading];
+        const remaining = maxItems - selected.length;
+        selected.push(...withoutSubheading.slice(0, remaining));
+    }
+
+    return selected;
 }
 
 // --- PPTX Generation ---
@@ -547,15 +614,19 @@ async function generatePptx() {
                     mermaidImages: []
                 };
             }
-            // Add content items
+            // Add content items - FIXED: Remove duplicate prefixes
             else if (line.startsWith('- ') || line.startsWith('* ')) {
-                currentSection.items.push(line.replace(/^[-*] /, '• '));
+                // Remove the original bullet and add bullet symbol directly
+                const cleanText = line.replace(/^[-*]\s+/, '');
+                currentSection.items.push('• ' + cleanText);
             }
             else if (/^\d+\.\s/.test(line)) {
                 currentSection.items.push(line);
             }
             else if (line.startsWith('### ')) {
-                currentSection.items.push('\n' + line.replace('### ', '▸ '));
+                // Remove ### and add arrow symbol directly
+                const cleanText = line.replace(/^###\s+/, '');
+                currentSection.items.push('▸ ' + cleanText);
             }
             // Regular text (skip tables and horizontal rules)
             else if (!line.startsWith('|') && !line.includes('---') && !line.startsWith('#')) {
@@ -570,9 +641,12 @@ async function generatePptx() {
             sections.push(currentSection);
         }
 
-        // Render sections to slides with pagination
+        // Render sections to slides with pagination and content simplification
         for (const section of sections) {
             if (section.items.length === 0 && section.mermaidImages.length === 0) continue;
+
+            // Check if this section has diagrams
+            const hasDiagram = section.mermaidImages && section.mermaidImages.length > 0;
 
             // Create section divider for major sections (not file-level)
             if (section.title !== file) {
@@ -580,7 +654,7 @@ async function generatePptx() {
             }
 
             // Add Mermaid diagrams if present
-            if (section.mermaidImages && section.mermaidImages.length > 0) {
+            if (hasDiagram) {
                 for (const imagePath of section.mermaidImages) {
                     const slide = pptx.addSlide();
 
@@ -596,45 +670,146 @@ async function generatePptx() {
                         fill: DESIGN.colors.accent
                     });
 
-                    // Title
+                    // Title - larger and positioned at top left
                     slide.addText(section.title, {
                         x: DESIGN.layout.margin,
-                        y: 0.7,
+                        y: 0.4,
                         w: 9,
-                        h: 0.6,
-                        fontSize: 24,
+                        h: 0.7,
+                        fontSize: 28,
                         bold: true,
                         color: DESIGN.colors.primary,
-                        align: 'center'
+                        align: 'left',
+                        valign: 'middle'
                     });
 
-                    // Add Mermaid diagram image
-                    slide.addImage({
-                        path: imagePath,
-                        x: 1,
-                        y: 1.5,
-                        w: 8,
-                        h: 4
-                    });
+                    // Add Mermaid diagram image with intelligent layout
+                    try {
+                        const dimensions = sizeOf(imagePath);
+                        const imageAspectRatio = dimensions.width / dimensions.height;
+
+                        // Define layout parameters
+                        const titleHeight = 1.2; // Space reserved for title
+                        const slideWidth = 10;
+                        const slideHeight = 5.625;
+                        const margin = 0.3;
+
+                        // Available space for diagram
+                        const availableWidth = slideWidth - (2 * margin);
+                        const availableHeight = slideHeight - titleHeight - margin;
+
+                        let displayWidth, displayHeight, x, y;
+
+                        // Intelligent layout based on aspect ratio
+                        if (imageAspectRatio > 1.6) {
+                            // Wide images (e.g., sequence diagrams, very wide flowcharts)
+                            // Use maximum width, center both horizontally and vertically
+                            displayWidth = availableWidth;
+                            displayHeight = displayWidth / imageAspectRatio;
+
+                            // Ensure it fits vertically
+                            if (displayHeight > availableHeight) {
+                                displayHeight = availableHeight;
+                                displayWidth = displayHeight * imageAspectRatio;
+                            }
+
+                            x = (slideWidth - displayWidth) / 2;
+                            y = titleHeight + (availableHeight - displayHeight) / 2;
+                        } else if (imageAspectRatio > 1.2) {
+                            // Moderately wide images (e.g., horizontal flowcharts)
+                            // Use maximum width, position closer to title
+                            displayWidth = availableWidth;
+                            displayHeight = displayWidth / imageAspectRatio;
+
+                            // Ensure it fits vertically
+                            if (displayHeight > availableHeight) {
+                                displayHeight = availableHeight;
+                                displayWidth = displayHeight * imageAspectRatio;
+                            }
+
+                            x = (slideWidth - displayWidth) / 2;
+                            y = titleHeight + 0.3; // Closer to title
+                        } else {
+                            // Vertical or square images (e.g., TD flowcharts)
+                            // Use available height, align with title height, center horizontally
+                            displayHeight = availableHeight;
+                            displayWidth = displayHeight * imageAspectRatio;
+
+                            // Ensure it fits horizontally
+                            if (displayWidth > availableWidth) {
+                                displayWidth = availableWidth;
+                                displayHeight = displayWidth / imageAspectRatio;
+                            }
+
+                            x = (slideWidth - displayWidth) / 2;
+                            y = titleHeight + 0.2; // Align with title bottom
+                        }
+
+                        slide.addImage({
+                            path: imagePath,
+                            x: x,
+                            y: y,
+                            w: displayWidth,
+                            h: displayHeight
+                        });
+                    } catch (error) {
+                        console.error(`Failed to get dimensions for ${imagePath}:`, error);
+                        // Fallback to centered layout
+                        slide.addImage({
+                            path: imagePath,
+                            x: 1,
+                            y: 1.5,
+                            w: 8,
+                            h: 3.5
+                        });
+                    }
                 }
             }
 
-            // Split content into pages if needed
-            const pages = splitContentIntoPages(section.items, DESIGN.layout.maxLinesPerSlide);
+            // Content simplification logic based on diagram presence
+            let contentToUse = section.items;
 
-            // Create content slides
-            for (let i = 0; i < pages.length; i++) {
-                const pageNum = i + 1;
-                const totalPages = pages.length;
+            if (hasDiagram) {
+                // SIMPLIFIED: Diagrams + brief summary (1-2 key points)
+                const summary = selectKeyPoints(section.items, 2);
 
-                createContentSlide(
-                    pptx,
-                    file,
-                    section.title,
-                    pages[i],
-                    pageNum,
-                    totalPages
-                );
+                if (summary.length > 0) {
+                    // Create summary slide after diagram
+                    const pages = splitContentIntoPages(summary, DESIGN.layout.maxLinesPerSlide);
+                    for (let i = 0; i < pages.length; i++) {
+                        createContentSlide(
+                            pptx,
+                            file,
+                            section.title + ' (摘要)',
+                            pages[i],
+                            i + 1,
+                            pages.length
+                        );
+                    }
+                }
+            } else {
+                // SIMPLIFIED: Text sections with 3-5 key points
+                contentToUse = selectKeyPoints(section.items, 5);
+
+                if (contentToUse.length > 0) {
+                    // Split content into pages if needed
+                    const pages = splitContentIntoPages(contentToUse, DESIGN.layout.maxLinesPerSlide);
+
+                    // Create content slides
+                    for (let i = 0; i < pages.length; i++) {
+                        const pageNum = i + 1;
+                        const totalPages = pages.length;
+
+                        createContentSlide(
+                            pptx,
+                            file,
+                            section.title,
+                            pages[i],
+                            pageNum,
+                            totalPages
+                        );
+                    }
+                }
             }
         }
     }

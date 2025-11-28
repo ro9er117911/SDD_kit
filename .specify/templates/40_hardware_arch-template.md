@@ -17,26 +17,27 @@
 ### 整體架構
 
 ```mermaid
-architecture-beta
-    group onprem(server)[OnPrem]
-    group cloud(cloud)[AzureCloud]
+graph TB
+    subgraph OnPrem["OnPrem"]
+        WebServer["Web Server"]
+        AppServer["App Server"]
+        DBServer["DB Server"]
+        Storage["Storage Array"]
+    end
 
-    service webserver(server)[Web_Server] in onprem
-    service appserver(server)[App_Server] in onprem
-    service dbserver(database)[DB_Server] in onprem
-    service storage(disk)[Storage_Array] in onprem
-    
-    service azurevm(server)[Azure_VM] in cloud
-    service azurestorage(disk)[Azure_Storage] in cloud
-    service azuredb(database)[Azure_DB] in cloud
+    subgraph Cloud["AzureCloud"]
+        AzureVM["Azure VM"]
+        AzureStorage["Azure Storage"]
+        AzureDB["Azure DB"]
+    end
 
-    webserver:R --> L:appserver
-    appserver:R --> L:dbserver
-    dbserver:B --> T:storage
+    WebServer -->|Request| AppServer
+    AppServer -->|Read/Write| DBServer
+    DBServer -->|Backup| Storage
     
-    appserver:T --> B:azurevm
-    azurevm:R --> L:azurestorage
-    azurevm:R --> L:azuredb
+    AppServer -->|Sync| AzureVM
+    AzureVM -->|Read/Write| AzureStorage
+    AzureVM -->|Read/Write| AzureDB
 ```
 
 ---

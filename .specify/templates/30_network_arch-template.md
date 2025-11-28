@@ -18,14 +18,14 @@
 
 ```mermaid
 graph TB
-    Internet[Internet] -->|HTTPS| FW3{防火牆}
+    Internet["Internet"] -->|HTTPS| FW3{"防火牆"}
     FW3 --> DMZ["DMZ<br>資安 Proxy"]
     DMZ --> Cloud["雲端網段<br>Azure"]
     
-    Internal[內部環境] -->|規則1| FW1{防火牆}
+    Internal["內部環境"] -->|規則1| FW1{"防火牆"}
     FW1 --> Cloud
     
-    DeID[去識別化網段] -->|規則2| FW2{防火牆}
+    DeID["去識別化網段"] -->|規則2| FW2{"防火牆"}
     FW2 --> Cloud
     
     style DMZ fill:#ffebee
@@ -36,11 +36,11 @@ graph TB
 
 ```mermaid
 graph TB
-    InternetT[Internet SIT] -->|HTTPS| FW3T{防火牆 SIT}
-    FW3T --> DMZT[DMZ SIT]
-    DMZT --> CloudT[Azure SIT]
+    InternetT["Internet SIT"] -->|HTTPS| FW3T{"防火牆 SIT"}
+    FW3T --> DMZT["DMZ SIT"]
+    DMZT --> CloudT["Azure SIT"]
     
-    InternalT[內部 SIT] -->|規則1-SIT| FW1T{防火牆 SIT}
+    InternalT["內部 SIT"] -->|規則1-SIT| FW1T{"防火牆 SIT"}
     FW1T --> CloudT
 ```
 
