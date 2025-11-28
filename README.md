@@ -13,7 +13,7 @@
 
 ```bash
 # 1. Clone 或使用 GitHub Template
-git clone https://github.com/YOUR_ORG/sdd-kit.git my-project
+git clone https://github.com/ro9er117911/sdd-kit.git my-project
 cd my-project
 
 # 2. 初始化（清理範例資料）
@@ -171,7 +171,7 @@ vim .github/agents/speckit.meta.agent.md
 
 ```bash
 # 設定上游 remote
-git remote add sdd-kit https://github.com/YOUR_ORG/sdd-kit.git
+git remote add sdd-kit https://github.com/ro9er117911/sdd-kit.git
 
 # 拉取更新
 git fetch sdd-kit
@@ -187,7 +187,7 @@ git checkout sdd-kit/main -- .specify/templates/
 
 查看完整範例專案（選擇性）：
 ```bash
-git clone https://github.com/YOUR_ORG/sdd-kit-examples.git
+git clone https://github.com/ro9er117911/sdd-kit-examples.git
 ```
 
 ---
