@@ -45,7 +45,7 @@
 | **付費選項** | **GitHub Copilot** | **Claude Code** (Anthropic) |
 
 ### 💡 我們的推薦 (免費方案)
-- **首選**: **Antigravity** (IDE) —— 提供大量最新的模型 (Gemini 2.5, Claude 3.5 Sonnet 等) 且完全免費，整合度高。
+- **首選**: **Antigravity** (IDE) —— 提供大量最新的模型 (Gemini 3, Claude 4.5 Sonnet,Opus 等) 且完全免費，整合度高。
 - **次選**: **Gemini CLI** (CLI) —— 如果您偏好終端機操作且不需要太多模型選擇，這是一個輕量的免費選擇 (需留意 API 額度)。
 
 ---
@@ -128,7 +128,7 @@ Anthropic 提供的進階 CLI 工具。
 
 ```bash
 # 1. Clone 專案
-git clone https://github.com/YOUR_ORG/SDD_KIT.git my-project
+git clone https://github.com/ro9er117911/SDD_kit my-project
 cd my-project
 
 # 2. 初始化 (清理範例資料)
