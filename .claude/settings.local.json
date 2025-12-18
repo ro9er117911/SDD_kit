@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(wc:*)",
+      "Skill(document-skills:docx)",
+      "Bash(node /Users/ro9air/SDD_repo/generate-docx.js:*)",
+      "Bash(npm install:*)",
+      "Skill(document-skills:pdf)",
+      "Bash(pip install:*)",
+      "Bash(python:*)",
+      "Skill(document-skills:pptx)",
+      "Bash(fc-list:*)",
+      "Bash(find:*)",
+      "SlashCommand(/speckit.meta 「Data-driven詐騙監控助理」\n\n加入電信資料跟社群媒體案例做高風險資料庫\n\n⇒後續用AI模型來自動化判讀並輸出定期報表)",
+      "Bash(git rev-parse:*)",
+      "Bash(mkdir:*)",
+      "Bash(node:*)",
+      "Bash(sips:*)",
+      "Bash(npx playwright install chromium)",
+      "Bash(NODE_PATH=/Users/ro9air/002-sdd-updates/node_modules node:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
