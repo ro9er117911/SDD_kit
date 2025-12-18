@@ -19,8 +19,8 @@ cd my-project
 # 2. 初始化（清理範例資料）
 ./init.sh
 
-# 3. 安裝 AI 助手 (推薦 Gemini CLI 免費方案)
-npm install -g @google/gemini-cli
+# 3. 安裝 AI 助手 (推薦 Antigravity 免費方案)
+# 詳見 SETUP_GUIDE.md 說明
 # 設定 API Key: export GEMINI_API_KEY="..."
 
 # 4. 建立第一個專案
@@ -38,9 +38,10 @@ gemini "請幫我填寫 project/001-PROJECT-NAME/meta/00_meta.md"
 - 📊 **Bank Profile 流程**：6 階段分析（Meta → Business → Process → Law/InfoSec/Audit → Review → Constitution）
 - 📝 **SDD 功能開發**：Specify → Clarify → Plan → Tasks → Implement
 - 🤖 **多 AI 支援**：
-  - **Gemini CLI** (推薦，免費)
-  - **GitHub Copilot** (付費，VS Code 整合)
-  - **Claude Code** (付費，高階推理)
+  - **Antigravity** (IDE, 推薦免費)
+  - **Gemini CLI** (CLI, 免費)
+  - **GitHub Copilot** (付費)
+  - **Claude Code** (付費)
 - 📄 **文檔自動生成**：PPTX/DOCX 匯出功能
 - 銀行級合規**：支援風險管理、資安、法遵、稽核需求
 
@@ -97,8 +98,11 @@ flowchart LR
 
 ## 🛠️ AI 助手支援
 
-### Gemini CLI (免費 / 推薦)
-適合所有使用者的開源工具。
+### Antigravity (免費 / 推薦)
+VS Code 擴充套件，提供大量最新模型。適合 IDE 使用者。
+
+### Gemini CLI (免費)
+適合 CLI 自動化的開源工具。
 ```bash
 gemini "Prompt..."
 ```
@@ -120,7 +124,7 @@ gemini "Prompt..."
 
 ## 📖 文檔
 
-- **[設定指南](docs/SETUP_GUIDE.md)** - 環境設定、第一個專案、常見問題
+- **[設定指南](SETUP_GUIDE.md)** - 環境設定、第一個專案、常見問題
 - **[架構說明](docs/ARCHITECTURE.md)** - 系統設計、模板 vs 命令、設計原則
 - **[憲法原則](.specify/memory/constitution.md)** - 核心原則與不可妥協的規則
 
