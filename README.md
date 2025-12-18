@@ -1,8 +1,8 @@
 # SDD Kit - Specification-Driven Development 工具包
 
 **將自然語言需求轉換為可執行的技術規格** - AI 驅動的規格自動化工具
-- **環境設定與第一個專案**: [SETUP_GUIDE.md](/docs/SETUP_GUIDE.md)
-- **架構說明**：[ARCHITECTURE.md](/docs/ARCHITECTURE.md)
+- **環境設定與第一個專案**: [SETUP_GUIDE.md](SETUP_GUIDE.md)
+- **架構說明**：[ARCHITECTURE.md](ARCHITECTURE.md)
 
 [![版本](https://img.shields.io/badge/version-2.0.0-blue.svg)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -13,19 +13,21 @@
 
 ```bash
 # 1. Clone 或使用 GitHub Template
-git clone https://github.com/ro9er117911/sdd-kit.git my-project
+git clone https://github.com/YOUR_ORG/sdd-kit.git my-project
 cd my-project
 
 # 2. 初始化（清理範例資料）
 ./init.sh
 
-# 3. 建立第一個專案
+# 3. 安裝 AI 助手 (推薦 Gemini CLI 免費方案)
+npm install -g @google/gemini-cli
+# 設定 API Key: export GEMINI_API_KEY="..."
+
+# 4. 建立第一個專案
 ./.specify/scripts/bash/create-new-project.sh "專案描述" --project-name "PROJECT-NAME"
 
-# 4. 填寫 Bank Profile（使用 Claude 或 GitHub Copilot）
-/speckit.meta          # 或 @agent speckit.meta
-/speckit.business      # 或 @agent speckit.business
-/speckit.process       # 或 @agent speckit.process
+# 5. 開始填寫 (使用 Gemini CLI)
+gemini "請幫我填寫 project/001-PROJECT-NAME/meta/00_meta.md"
 ```
 
 ---
@@ -35,9 +37,12 @@ cd my-project
 - 🗂️ **專案管理**：自動編號（001, 002...）、完整目錄結構、模板系統
 - 📊 **Bank Profile 流程**：6 階段分析（Meta → Business → Process → Law/InfoSec/Audit → Review → Constitution）
 - 📝 **SDD 功能開發**：Specify → Clarify → Plan → Tasks → Implement
-- 🤖 **雙 AI 支援**：Claude 和 GitHub Copilot 都能使用（16 個中文命令）
+- 🤖 **多 AI 支援**：
+  - **Gemini CLI** (推薦，免費)
+  - **GitHub Copilot** (付費，VS Code 整合)
+  - **Claude Code** (付費，高階推理)
 - 📄 **文檔自動生成**：PPTX/DOCX 匯出功能
-- 🏦 **銀行級合規**：支援風險管理、資安、法遵、稽核需求
+- 銀行級合規**：支援風險管理、資安、法遵、稽核需求
 
 ---
 
@@ -45,7 +50,7 @@ cd my-project
 
 ### 專案層級：Bank Profile
 
-適用於金融(受監理產業)的完整需求分析：
+適用於金融、醫療等受監理產業的完整需求分析：
 
 ```mermaid
 flowchart LR
@@ -92,23 +97,24 @@ flowchart LR
 
 ## 🛠️ AI 助手支援
 
-### Claude Desktop
-使用 slash 命令（16 個中文命令）：
-```
-/speckit.meta
-/speckit.business
-...
+### Gemini CLI (免費 / 推薦)
+適合所有使用者的開源工具。
+```bash
+gemini "Prompt..."
 ```
 
-### GitHub Copilot
+### GitHub Copilot (付費)
 使用 agent 指令（19 個中文 agents）：
 ```
 @agent speckit.meta
 @agent project.create "專案名稱" --project-name "NAME"
-@agent project.context
 ```
 
-**完整命令列表**：參見 [.claude/commands/](.claude/commands/) 或 [.github/agents/](.github/agents/)
+### Claude Desktop (付費)
+使用 slash 命令：
+```
+/speckit.meta
+```
 
 ---
 
@@ -171,7 +177,7 @@ vim .github/agents/speckit.meta.agent.md
 
 ```bash
 # 設定上游 remote
-git remote add sdd-kit https://github.com/ro9er117911/sdd-kit.git
+git remote add sdd-kit https://github.com/YOUR_ORG/sdd-kit.git
 
 # 拉取更新
 git fetch sdd-kit
@@ -187,7 +193,7 @@ git checkout sdd-kit/main -- .specify/templates/
 
 查看完整範例專案（選擇性）：
 ```bash
-git clone https://github.com/ro9er117911/sdd-kit-examples.git
+git clone https://github.com/YOUR_ORG/sdd-kit-examples.git
 ```
 
 ---
