@@ -13,7 +13,7 @@
 
 ```bash
 # 1. Clone 或使用 GitHub Template
-git clone https://github.com/YOUR_ORG/sdd-kit.git my-project
+git clone https://github.com/ro9er117911/sdd-kit.git my-project
 cd my-project
 
 # 2. 初始化（清理範例資料）
